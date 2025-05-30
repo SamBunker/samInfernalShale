@@ -29,7 +29,7 @@ public class samInfernalShale extends AbstractScript {
     private final ArrayList<Task> taskList = new ArrayList<Task>();
 
     public static void main(String[] args) {
-        new ScriptUploader().uploadAndStart("Sam Infernal Shale Script", "", "R52T90A6VCM", true, false);
+        new ScriptUploader().uploadAndStart("Sam Infernal Shale", "", "R52T90A6VCM", true, false);
     }
 
     @Override
@@ -38,7 +38,6 @@ public class samInfernalShale extends AbstractScript {
         taskList.add(new GoToArea(this));
         taskList.add(new Crush(this));
         taskList.add(new Mining(this, TickManipulation));
-
     }
 
     @Override

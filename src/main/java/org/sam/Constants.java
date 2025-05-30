@@ -24,6 +24,7 @@ public class Constants {
     public static final Integer JIM_ID = 14202;
     public static final Integer INFERNAL_SHALE_DEPOSIT_ID = 56362;
     public static final Integer INFERNAL_SHALE_DEPOSIT_DEPLEATED_ID = 56363;
+    public static final Integer INFERNAL_SHALE = 30846;
 
 
 
