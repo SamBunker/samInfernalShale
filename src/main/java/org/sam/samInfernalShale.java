@@ -2,54 +2,43 @@ package org.sam;
 import org.powbot.api.script.*;
 import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
+import org.sam.Tasks.Banking;
+import org.sam.Tasks.GoToArea;
+import org.sam.Tasks.Mining;
 
 import java.util.ArrayList;
 
 @ScriptConfiguration.List({
         @ScriptConfiguration(
-                name = "Harpoon",
-                allowedValues = {"Merfolk trident", "Trident of the seas", "Trident of the swamp", "Dragon harpoon", "Harpoon"},
-                defaultValue = "Dragon harpoon",
-                description = "Which trident or harpoon are you using?",
-                optionType = OptionType.STRING
-        ),
-        @ScriptConfiguration(
-                name = "Stamina",
-                description = "Use Stamina Potions?",
-                optionType = OptionType.BOOLEAN
-        ),
-        @ScriptConfiguration(
-                name = "NumuliteUnlock",
-                description = "Did you pay 20,000 numulite for permanent access to drift net fishing? If not, grab Numulite from bank.",
+                name = "TickManipulation",
+                description = "Do you want to use Jim's Wet Rag for tick manipulation?",
                 optionType = OptionType.BOOLEAN
         )
 })
 
 @ScriptManifest(
-        name = "Sam Template Script",
+        name = "Sam Infernal Shale",
         description = "Begins WHERE?",
         author = "Sam",
         version = "1",
-        category = ScriptCategory.Fishing
+        category = ScriptCategory.Mining
 )
 public class samInfernalShale extends AbstractScript {
-    Boolean NumuliteUnlock;
-    String Harpoon = "";
-    Boolean Stamina;
+    Boolean TickManipulation;
 
     private final ArrayList<Task> taskList = new ArrayList<Task>();
 
     public static void main(String[] args) {
-        new ScriptUploader().uploadAndStart("Sam Template Script", "", "R52T90A6VCM", true, false);
+        new ScriptUploader().uploadAndStart("Sam Infernal Shale Script", "", "R52T90A6VCM", true, false);
     }
 
     @Override
     public void onStart() {
-        NumuliteUnlock = getOption("NumuliteUnlock");
-        Harpoon = getOption("Harpoon");
-        Stamina = getOption("Stamina");
-//        taskList.add(new Banking(this, NumuliteUnlock, Harpoon, Stamina));
-//        taskList.add(new ReturnToArea(this));
+        TickManipulation = getOption("TickManipulation");
+        taskList.add(new Mining(this, TickManipulation));
+        taskList.add(new Banking(this));
+        taskList.add(new GoToArea(this));
+
     }
 
     @Override
