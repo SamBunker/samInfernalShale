@@ -2,7 +2,7 @@ package org.sam;
 import org.powbot.api.script.*;
 import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
-import org.sam.Tasks.Banking;
+import org.sam.Tasks.Crush;
 import org.sam.Tasks.GoToArea;
 import org.sam.Tasks.Mining;
 
@@ -35,9 +35,9 @@ public class samInfernalShale extends AbstractScript {
     @Override
     public void onStart() {
         TickManipulation = getOption("TickManipulation");
-        taskList.add(new Mining(this, TickManipulation));
-        taskList.add(new Banking(this));
         taskList.add(new GoToArea(this));
+        taskList.add(new Crush(this));
+        taskList.add(new Mining(this, TickManipulation));
 
     }
 

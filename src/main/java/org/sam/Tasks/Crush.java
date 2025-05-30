@@ -1,24 +1,23 @@
 package org.sam.Tasks;
 
+import org.powbot.api.rt4.Inventory;
 import org.powbot.api.rt4.Players;
 import org.sam.Constants;
 import org.sam.Task;
 import org.sam.samInfernalShale;
 
-public class Mining extends Task {
+public class Crush extends Task {
     samInfernalShale main;
-    private final Boolean tickManipulation;
 
-    public Mining(samInfernalShale main, Boolean tickManipulation) {
+    public Crush(samInfernalShale main) {
         super();
-        super.name = "Mining Infernal Shale";
+        super.name = "Crushing Infernal Shale";
         this.main = main;
-        this.tickManipulation = tickManipulation;
     }
 
     @Override
     public boolean activate() {
-        return Constants.INFERNAL_SHALE_AREA.contains(Players.local());
+        return Inventory.isFull();
     }
 
     @Override
