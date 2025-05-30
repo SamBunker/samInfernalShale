@@ -32,10 +32,10 @@ import java.util.ArrayList;
         version = "1",
         category = ScriptCategory.Fishing
 )
-public class PowTemplateScript extends AbstractScript {
-        Boolean NumuliteUnlock;
-        String Harpoon = "";
-        Boolean Stamina;
+public class samInfernalShale extends AbstractScript {
+    Boolean NumuliteUnlock;
+    String Harpoon = "";
+    Boolean Stamina;
 
     private final ArrayList<Task> taskList = new ArrayList<Task>();
 
