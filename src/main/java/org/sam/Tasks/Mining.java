@@ -45,14 +45,12 @@ public class Mining extends Task {
                 boolean nearRock = Condition.wait(() -> Players.local().tile().distanceTo(rock.tile()) == 1, 50, 40);
                 if (nearRock && rock.valid() && rock.actions().contains("Mine") ) {
                     if (wetCloth.interact("Wipe")) {
-                        Condition.sleep(ThreadLocalRandom.current().nextInt(89, 111));
-
+                        Condition.sleep(ThreadLocalRandom.current().nextInt(85, 109)); // Wait towards end of wet napkin animation
                         if (rock.valid() && rock.name().equals("Infernal shale rocks") && rock.actions().contains("Mine") && rock.interact("Mine")) {
-                            if (Players.local().animation() == 7139) {
-                                return;
-                            }
                             Condition.wait(() -> Players.local().animation() != -1, 50, 40); // Start mining
-                            Condition.wait(() -> Players.local().animation() == -1, 50, 200); // Finished mining
+                            Condition.wait(() -> Players.local().animation() == -1, 50, 110); // Finished mining
+//                        } //else {
+//                            //Objects.stream().name(Constants.ORE_NAME).action("Mine").nearest().second();
                         }
                     }
                 }
