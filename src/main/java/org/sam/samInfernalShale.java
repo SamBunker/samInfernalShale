@@ -3,6 +3,7 @@ import org.powbot.api.script.*;
 import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
 import org.sam.Tasks.Crush;
+import org.sam.Tasks.HandleGems;
 import org.sam.Tasks.GoToArea;
 import org.sam.Tasks.Mining;
 
@@ -12,6 +13,11 @@ import java.util.ArrayList;
         @ScriptConfiguration(
                 name = "TickManipulation",
                 description = "Do you want to use Jim's Wet Rag for tick manipulation?",
+                optionType = OptionType.BOOLEAN
+        ),
+        @ScriptConfiguration(
+                name = "GemBag",
+                description = "Deposit gems into your gem bag?",
                 optionType = OptionType.BOOLEAN
         )
 })
@@ -25,6 +31,7 @@ import java.util.ArrayList;
 )
 public class samInfernalShale extends AbstractScript {
     Boolean TickManipulation;
+    Boolean GemBag;
 
     private final ArrayList<Task> taskList = new ArrayList<Task>();
 
@@ -35,7 +42,9 @@ public class samInfernalShale extends AbstractScript {
     @Override
     public void onStart() {
         TickManipulation = getOption("TickManipulation");
+        GemBag = getOption("GemBag");
         taskList.add(new GoToArea(this));
+        taskList.add(new HandleGems(this, GemBag));
         taskList.add(new Crush(this));
         taskList.add(new Mining(this, TickManipulation));
     }

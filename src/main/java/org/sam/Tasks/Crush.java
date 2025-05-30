@@ -40,10 +40,10 @@ public class Crush extends Task {
                     boolean selected = Condition.wait(() -> Inventory.selectedItem() != null && Inventory.selectedItem().name().equals("Hammer"), 50, 20);
                     if (selected && shale.interact("Use")) {
                         Condition.wait(() -> Inventory.stream().id(Constants.INFERNAL_SHALE).count() < Inventory.stream().id(Constants.INFERNAL_SHALE).count(),
-                                100, 5);
+                                40, 5);
                     }
                 }
-                Condition.sleep(ThreadLocalRandom.current().nextInt(300, 1069));
+                Condition.sleep(ThreadLocalRandom.current().nextInt(48, 111));
             }
         }
     }
