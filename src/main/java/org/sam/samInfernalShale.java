@@ -59,7 +59,7 @@ public class samInfernalShale extends AbstractScript {
                         .build()
         );
         taskList.add(new GoToArea(this));
-        taskList.add(new HandleGems(this, GemBag));
+        //taskList.add(new HandleGems(this, GemBag));
         taskList.add(new Crush(this));
         taskList.add(new Mining(this, TickManipulation));
     }

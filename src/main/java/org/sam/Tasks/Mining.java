@@ -2,6 +2,7 @@ package org.sam.Tasks;
 
 import org.powbot.api.Condition;
 import org.powbot.api.rt4.*;
+import org.powbot.mobile.Toggle;
 import org.sam.Constants;
 import org.sam.Task;
 import org.sam.samInfernalShale;
@@ -43,6 +44,9 @@ public class Mining extends Task {
 
     @Override
     public void execute() {
+        if (Combat.specialPercentage() == 100) {
+            Combat.specialAttack(true);
+        }
         AtomicReference<GameObject> rockRef = new AtomicReference<>();
 
         if (tickManipulation && !Inventory.isFull() && !hasItem(Constants.WET_CLOTH)) {
@@ -79,6 +83,8 @@ public class Mining extends Task {
                     tryMine(rockRef.get(), 500);
                 }
             }
+            return;
         }
+        //
     }
 }
