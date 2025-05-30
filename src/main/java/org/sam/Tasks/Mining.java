@@ -6,7 +6,9 @@ import org.sam.Constants;
 import org.sam.Task;
 import org.sam.samInfernalShale;
 
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Mining extends Task {
     samInfernalShale main;
@@ -24,6 +26,16 @@ public class Mining extends Task {
                 Equipment.stream().name(name).isNotEmpty();
     }
 
+    private boolean tryMine(GameObject rock, Integer time) {
+        if (rock != null && rock.valid() && rock.name().equals("Infernal shale rocks") &&
+        rock.actions().contains("Mine") && rock.interact("Mine")) {
+            Condition.wait(() -> Players.local().animation() != -1, 50, 40); // Start mining
+            Condition.wait(() -> Players.local().animation() == -1, 50, time); // Finished mining
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public boolean activate() {
         return Constants.INFERNAL_SHALE_AREA.contains(Players.local()) && !Inventory.isFull();
@@ -31,56 +43,42 @@ public class Mining extends Task {
 
     @Override
     public void execute() {
+        AtomicReference<GameObject> rockRef = new AtomicReference<>();
+
         if (tickManipulation && !Inventory.isFull() && !hasItem(Constants.WET_CLOTH)) {
             Npc jim = Npcs.stream().id(Constants.JIM_ID).nearest().first();
             jim.interact("Take-from");
             Condition.wait(() -> hasItem(Constants.WET_CLOTH), 120, 15);
         }
+        List<GameObject> rocks = Objects.stream().name(Constants.ORE_NAME).action("Mine").nearest().list();
+        rockRef.set(rocks.get(0)); //get the closest rock
+
         if (tickManipulation) {
-            GameObject rock = Objects.stream().name(Constants.ORE_NAME).action("Mine").nearest().first();
             Item wetCloth = Inventory.stream().name(Constants.WET_CLOTH).first();
 
-            if (wetCloth != null && rock != null) {
-                Movement.step(rock);
-                boolean nearRock = Condition.wait(() -> Players.local().tile().distanceTo(rock.tile()) == 1, 50, 40);
-                if (nearRock && rock.valid() && rock.actions().contains("Mine") ) {
+            if (wetCloth != null && rockRef.get() != null) {
+                Movement.step(rockRef.get());
+                boolean nearRock = Condition.wait(() -> Players.local().tile().distanceTo(rockRef.get().tile()) == 1, 50, 40);
+                if (nearRock && rockRef.get().valid() && rockRef.get().actions().contains("Mine")) {
                     if (wetCloth.interact("Wipe")) {
                         Condition.sleep(ThreadLocalRandom.current().nextInt(85, 109)); // Wait towards end of wet napkin animation
-                        if (rock.valid() && rock.name().equals("Infernal shale rocks") && rock.actions().contains("Mine") && rock.interact("Mine")) {
-                            Condition.wait(() -> Players.local().animation() != -1, 50, 40); // Start mining
-                            Condition.wait(() -> Players.local().animation() == -1, 50, 110); // Finished mining
-//                        } //else {
-//                            //Objects.stream().name(Constants.ORE_NAME).action("Mine").nearest().second();
+                        if (!tryMine(rockRef.get(), 110)) {
+                            rockRef.set(rocks.get(1));
+                            tryMine(rockRef.get(), 110);
                         }
                     }
                 }
             }
         }
         if (!tickManipulation) {
-            GameObject rock = Objects.stream().name(Constants.ORE_NAME).nearest().first();
-            if (rock != null) {
-                Movement.step(rock);
-                Condition.wait(() -> Players.local().tile().distanceTo(rock.tile()) == 1, 50, 40);
-                if (rock.interact("Mine")) {
-                    Condition.wait(() -> Players.local().animation() != -1, 50, 40);
-                    Condition.wait(() -> Players.local().animation() == -1, 50, 500);
+            if (rockRef.get() != null) {
+                Movement.step(rockRef.get());
+                boolean nearRock = Condition.wait(() -> Players.local().tile().distanceTo(rockRef.get().tile()) == 1, 50, 40);
+                if (nearRock && !tryMine(rockRef.get(), 500)) {
+                    rockRef.set(rocks.get(1));
+                    tryMine(rockRef.get(), 500);
                 }
             }
         }
-//        if (tickManipulation) {
-//            GameObject rock = Objects.stream().name(Constants.ORE_NAME).nearest().first();
-//            Item wetCloth = Inventory.stream().name(Constants.WET_CLOTH).first();
-//            if (wetCloth != null && rock != null) {
-//                Movement.step(rock);
-//                Condition.wait(() -> Players.local().tile().distanceTo(rock.tile()) == 1, 50, 40);
-//                wetCloth.interact("Wipe");
-////                    Condition.wait(() -> Players.local().animation() == Constants.CLOTH_ANIMATION_ID, 10, 10);
-//                Condition.sleep(ThreadLocalRandom.current().nextInt(80, 121));
-//                if (rock.interact("Mine")) {
-//                    Condition.wait(() -> Players.local().animation() != -1, 50, 40);
-//                    Condition.wait(() -> Players.local().animation() == -1, 50, 200);
-//                }
-//            }
-//        }
     }
 }

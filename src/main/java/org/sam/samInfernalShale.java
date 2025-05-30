@@ -1,5 +1,8 @@
 package org.sam;
+import org.powbot.api.rt4.Skills;
+import org.powbot.api.rt4.walking.model.Skill;
 import org.powbot.api.script.*;
+import org.powbot.api.script.paint.PaintBuilder;
 import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
 import org.sam.Tasks.Crush;
@@ -7,6 +10,7 @@ import org.sam.Tasks.HandleGems;
 import org.sam.Tasks.GoToArea;
 import org.sam.Tasks.Mining;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 @ScriptConfiguration.List({
@@ -24,12 +28,13 @@ import java.util.ArrayList;
 
 @ScriptManifest(
         name = "Sam Infernal Shale",
-        description = "Begins WHERE?",
+        description = "Begin inside the infernal shale mining area.",
         author = "Sam",
-        version = "1",
+        version = "1.0",
         category = ScriptCategory.Mining
 )
 public class samInfernalShale extends AbstractScript {
+    private String currentTask = "Idle";
     Boolean TickManipulation;
     Boolean GemBag;
 
@@ -43,6 +48,16 @@ public class samInfernalShale extends AbstractScript {
     public void onStart() {
         TickManipulation = getOption("TickManipulation");
         GemBag = getOption("GemBag");
+        addPaint(
+                PaintBuilder.newBuilder()
+                        .minHeight(150)
+                        .minWidth(450)
+                        .backgroundColor(2)
+                        .withTextSize(14F)
+                        .addString(() -> "Task: " + currentTask)
+                        .trackSkill(Skill.Mining)
+                        .build()
+        );
         taskList.add(new GoToArea(this));
         taskList.add(new HandleGems(this, GemBag));
         taskList.add(new Crush(this));
@@ -53,11 +68,13 @@ public class samInfernalShale extends AbstractScript {
     public void poll() {
         for (Task task : taskList) {
             if (task.activate()) {
+                currentTask = task.name;
                 task.execute();
                 if (ScriptManager.INSTANCE.isStopping()) {
                     break;
                 }
             }
         }
+        currentTask = "Idle";
     }
 }
