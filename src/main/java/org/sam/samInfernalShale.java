@@ -3,8 +3,6 @@ import org.powbot.api.Condition;
 import org.powbot.api.rt4.Chat;
 import org.powbot.api.rt4.Inventory;
 import org.powbot.api.rt4.Item;
-import org.powbot.api.script.listener.MessageListener;
-import org.powbot.api.script.listener.MessageEvent;
 import org.powbot.api.rt4.walking.model.Skill;
 import org.powbot.api.script.*;
 import org.powbot.api.script.paint.PaintBuilder;
@@ -18,6 +16,8 @@ import org.sam.Tasks.Mining;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @ScriptConfiguration.List({
         @ScriptConfiguration(
@@ -40,6 +40,7 @@ import java.util.concurrent.ThreadLocalRandom;
         category = ScriptCategory.Mining
 )
 public class samInfernalShale extends AbstractScript {
+    public GemBagManager gemBagManager = new GemBagManager();
     private String currentTask = "Idle";
     Boolean TickManipulation;
     Boolean GemBag;
@@ -52,23 +53,31 @@ public class samInfernalShale extends AbstractScript {
 
     @Override
     public void onStart() {
+
         TickManipulation = getOption("TickManipulation");
         GemBag = getOption("GemBag");
 
         if (GemBag) {
             Item gemBag = Inventory.stream().name("Gem bag").first();
+
             if (gemBag != null) {
                 if (gemBag.interact("Check")) {
-                    Condition.sleep(ThreadLocalRandom.current().nextInt(20, 50));
+                    //Condition.sleep(ThreadLocalRandom.current().nextInt(20, 50));
                     String bagContents = Chat.getChatMessage();
-                    if (bagContents != null && bagContents.toLowerCase().contains("Your gem bag contains")) {
-                        
+                    if (bagContents != null && bagContents.toLowerCase().startsWith("your gem bag contains")) {
+                        Pattern pattern = Pattern.compile("(\\d+)\\s+(sapphires|emeralds|rubies|diamonds)");
+                        Matcher matcher = pattern.matcher(bagContents.toLowerCase());
+
+                        while (matcher.find()) {
+                            int count = Integer.parseInt(matcher.group(1));
+                            String gemType = matcher.group(2);
+                            String formattedGem = "Uncut " + gemType.substring(0, gemType.length() - 1); // Remove plural
+                            gemBagManager.updateGemCount(formattedGem, count);
+                            System.out.println("Updated " + formattedGem + " to " + count);
+                        }
                     }
 
                 }
-            String bagContents = String.valueOf(Chat.getChatMessage().toLowerCase().matches("Your gem bag contains"));
-
-
             }
         }
 
@@ -83,7 +92,7 @@ public class samInfernalShale extends AbstractScript {
                         .build()
         );
         taskList.add(new GoToArea(this));
-        //taskList.add(new HandleGems(this, GemBag));
+        taskList.add(new HandleGems(this, GemBag));
         taskList.add(new Crush(this));
         taskList.add(new Mining(this, TickManipulation));
     }
