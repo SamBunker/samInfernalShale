@@ -1,5 +1,10 @@
 package org.sam;
-import org.powbot.api.rt4.Skills;
+import org.powbot.api.Condition;
+import org.powbot.api.rt4.Chat;
+import org.powbot.api.rt4.Inventory;
+import org.powbot.api.rt4.Item;
+import org.powbot.api.script.listener.MessageListener;
+import org.powbot.api.script.listener.MessageEvent;
 import org.powbot.api.rt4.walking.model.Skill;
 import org.powbot.api.script.*;
 import org.powbot.api.script.paint.PaintBuilder;
@@ -12,6 +17,7 @@ import org.sam.Tasks.Mining;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 @ScriptConfiguration.List({
         @ScriptConfiguration(
@@ -48,6 +54,24 @@ public class samInfernalShale extends AbstractScript {
     public void onStart() {
         TickManipulation = getOption("TickManipulation");
         GemBag = getOption("GemBag");
+
+        if (GemBag) {
+            Item gemBag = Inventory.stream().name("Gem bag").first();
+            if (gemBag != null) {
+                if (gemBag.interact("Check")) {
+                    Condition.sleep(ThreadLocalRandom.current().nextInt(20, 50));
+                    String bagContents = Chat.getChatMessage();
+                    if (bagContents != null && bagContents.toLowerCase().contains("Your gem bag contains")) {
+                        
+                    }
+
+                }
+            String bagContents = String.valueOf(Chat.getChatMessage().toLowerCase().matches("Your gem bag contains"));
+
+
+            }
+        }
+
         addPaint(
                 PaintBuilder.newBuilder()
                         .minHeight(150)
