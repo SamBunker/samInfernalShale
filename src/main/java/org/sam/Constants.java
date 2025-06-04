@@ -18,6 +18,8 @@ public class Constants {
 
     //AREAS
     public static Area INFERNAL_SHALE_AREA = new Area(new Tile(1463,10105,0), new Tile(1475,10085,0));
+    public static Area CHASM_OF_FIRE_WORLD = new Area(new Tile(1424, 3680, 0), new Tile(1464, 3648, 0));
+    public static Area CHASM_OF_FIRE_ENTRANCE = new Area(new Tile(1433, 3674), new Tile(1436, 3671));
 
     //Integer IDS
     public static final Integer FIRE_ID = 56370;
