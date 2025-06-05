@@ -33,7 +33,7 @@ public class GoToArea extends Task {
             GameObject entrance = Objects.stream().name("Chasm").first();
             if (entrance != null) {
                 if (entrance.interact("Enter")) {
-                    Condition.wait(() -> Constants.X.contains(Players.local()), 80, 120);
+                    Condition.wait(() -> Constants.INFERNAL_SHALE_AREA.contains(Players.local()), 80, 120);
                     // KEEP GOING
                 }
             }

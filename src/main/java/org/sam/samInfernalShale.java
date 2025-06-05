@@ -1,6 +1,8 @@
 package org.sam;
 import org.powbot.api.Condition;
+import org.powbot.api.event.GameObjectActionEvent;
 import org.powbot.api.rt4.Chat;
+import org.powbot.api.rt4.Game;
 import org.powbot.api.rt4.Inventory;
 import org.powbot.api.rt4.Item;
 import org.powbot.api.rt4.walking.model.Skill;
@@ -13,13 +15,18 @@ import org.sam.Tasks.HandleGems;
 import org.sam.Tasks.GoToArea;
 import org.sam.Tasks.Mining;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.List;
 
 @ScriptConfiguration.List({
+        @ScriptConfiguration(
+                name = "SelectedRocks",
+                description = "Select the rocks you'd like to interact with",
+                optionType = OptionType.GAMEOBJECT_ACTIONS
+        ),
         @ScriptConfiguration(
                 name = "TickManipulation",
                 description = "Do you want to use Jim's Wet Rag for tick manipulation?",
@@ -53,9 +60,11 @@ public class samInfernalShale extends AbstractScript {
 
     @Override
     public void onStart() {
-
+        List<GameObjectActionEvent> selectedRocks = getOption("SelectedRocks");
+        //GameObjectActionEvent[] selectedRocks = getOption("SelectedRocks");
         TickManipulation = getOption("TickManipulation");
         GemBag = getOption("GemBag");
+
 
         if (GemBag) {
             Item gemBag = Inventory.stream().name("Gem bag").first();
@@ -91,10 +100,10 @@ public class samInfernalShale extends AbstractScript {
                         .trackSkill(Skill.Mining)
                         .build()
         );
-        taskList.add(new GoToArea(this));
+        //taskList.add(new GoToArea(this));
         taskList.add(new HandleGems(this, GemBag));
         taskList.add(new Crush(this));
-        taskList.add(new Mining(this, TickManipulation));
+        taskList.add(new Mining(this, TickManipulation, selectedRocks));
     }
 
     @Override

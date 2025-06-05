@@ -36,7 +36,7 @@ public class Crush extends Task {
         if (hammer != null) {
             while (Inventory.stream().id(Constants.INFERNAL_SHALE).isNotEmpty()) {
                 if (shale == null) break;
-                Condition.sleep(ThreadLocalRandom.current().nextInt(49, 101)); // Wait towards end of wet napkin animation
+                Condition.sleep(ThreadLocalRandom.current().nextInt(10, 12)); // Wait towards end of wet napkin animation
                 if (hammer.interact("Use")) {
                     boolean selected = Condition.wait(() -> Inventory.selectedItem() != null && Inventory.selectedItem().name().equals("Hammer"), 50, 20);
                     if (selected && shale.interact("Use")) {
