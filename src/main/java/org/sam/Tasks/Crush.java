@@ -31,20 +31,15 @@ public class Crush extends Task {
     @Override
     public void execute() {
         Item hammer = Inventory.stream().name("Hammer").first();
-        Item shale = Inventory.stream().id(Constants.INFERNAL_SHALE).last();
-
-        if (hammer != null) {
-            while (Inventory.stream().id(Constants.INFERNAL_SHALE).isNotEmpty()) {
+        int maxAttempts = 28;
+        if (hammer.valid()) {
+            for (int i = 0; i < maxAttempts; i++) {
+                Item shale = Inventory.stream().id(Constants.INFERNAL_SHALE).last();
                 if (shale == null) break;
-                Condition.sleep(ThreadLocalRandom.current().nextInt(10, 12)); // Wait towards end of wet napkin animation
-                if (hammer.interact("Use")) {
-                    boolean selected = Condition.wait(() -> Inventory.selectedItem() != null && Inventory.selectedItem().name().equals("Hammer"), 50, 20);
-                    if (selected && shale.interact("Use")) {
-                        Condition.wait(() -> Inventory.stream().id(Constants.INFERNAL_SHALE).count() < Inventory.stream().id(Constants.INFERNAL_SHALE).count(),
-                                40, 5);
-                    }
-                }
-                Condition.sleep(ThreadLocalRandom.current().nextInt(48, 111));
+                long previousCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
+                hammer.useOn(shale);
+                Condition.wait(() -> Inventory.stream().id(Constants.INFERNAL_SHALE).count() < previousCount,
+                        20, 10);
             }
         }
     }
