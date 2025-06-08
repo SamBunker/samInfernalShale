@@ -61,7 +61,6 @@ public class samInfernalShale extends AbstractScript {
     @Override
     public void onStart() {
         List<GameObjectActionEvent> selectedRocks = getOption("SelectedRocks");
-        //GameObjectActionEvent[] selectedRocks = getOption("SelectedRocks");
         TickManipulation = getOption("TickManipulation");
         GemBag = getOption("GemBag");
 

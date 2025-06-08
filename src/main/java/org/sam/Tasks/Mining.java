@@ -1,6 +1,7 @@
 package org.sam.Tasks;
 
 import org.powbot.api.Condition;
+import org.powbot.api.Random;
 import org.powbot.api.event.GameObjectActionEvent;
 import org.powbot.api.rt4.*;
 import org.powbot.api.rt4.stream.TileRadius;
@@ -9,7 +10,6 @@ import org.sam.Task;
 import org.sam.samInfernalShale;
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class Mining extends Task {
     samInfernalShale main;
@@ -63,7 +63,7 @@ public class Mining extends Task {
             }
         }
         if (!wetCloth.interact("Wipe")) return;
-        Condition.sleep(ThreadLocalRandom.current().nextInt(85, 109)); // Wait towards end of wet napkin animation
+        Condition.sleep(Random.nextInt(89, 109));
         targetRock.interact("Mine");
         boolean mined = Condition.wait(() -> {
                     GameObject rockNow = Objects.stream().at(event.getTile()).name("Rocks").first();
@@ -75,6 +75,6 @@ public class Mining extends Task {
             selectedRocks.add(event);
             return;
         }
-        Condition.sleep(ThreadLocalRandom.current().nextInt(85, 109)); // Wait towards end of wet napkin animation
+        Condition.sleep(Random.nextInt(90, 120));
     }
 }

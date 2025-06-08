@@ -1,7 +1,9 @@
 package org.sam.Tasks;
 
 import org.powbot.api.Condition;
+import org.powbot.api.Random;
 import org.powbot.api.rt4.*;
+import org.powbot.mobile.rlib.RPowBot;
 import org.sam.Constants;
 import org.sam.Task;
 import org.sam.samInfernalShale;
@@ -35,12 +37,13 @@ public class Crush extends Task {
         if (hammer.valid()) {
             for (int i = 0; i < maxAttempts; i++) {
                 Item shale = Inventory.stream().id(Constants.INFERNAL_SHALE).last();
-                if (shale == null) break;
-                long previousCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
+                if (shale.inventoryActions().isEmpty()) break;
+                //long previousCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
                 hammer.useOn(shale);
-                Condition.wait(() -> Inventory.stream().id(Constants.INFERNAL_SHALE).count() < previousCount,
-                        20, 10);
+                Condition.sleep(Random.nextInt(20, 80));
+                //Condition.wait(() -> Inventory.stream().id(Constants.INFERNAL_SHALE).count() < previousCount, 20, 10);
             }
         }
+        Condition.sleep(Random.nextInt(80, 110));
     }
 }
