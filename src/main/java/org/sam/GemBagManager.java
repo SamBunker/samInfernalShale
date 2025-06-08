@@ -19,7 +19,7 @@ public class GemBagManager {
     }
 
     public boolean anyGemFull() {
-        return gemCounts.values().stream().anyMatch(count -> count >= 30);
+        return gemCounts.values().stream().anyMatch(count -> count >= 60);
     }
 
     public void reset() {

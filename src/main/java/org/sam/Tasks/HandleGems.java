@@ -70,28 +70,6 @@ public class HandleGems extends Task {
                     }
                     return;
                 }
-
-                if (gemBagManager.anyGemFull()) {
-                    Locatable nearestBank = Bank.nearest();
-                    Movement.builder(nearestBank).setAutoRun(true).setUseTeleports(true).move();
-                    boolean bankIsOpen = Bank.opened();
-                    if (Bank.inViewport()) {
-                        Condition.wait(() -> Bank.open(), 50, 100);
-                        Condition.wait(() -> bankIsOpen, 20, 80);
-                        if (gemBagItem.interact("Empty")) {
-                            gemBagManager.reset();
-                        }
-                        Condition.sleep(ThreadLocalRandom.current().nextInt(28, 67));
-                        Bank.close(true);
-                        Condition.wait(() -> !bankIsOpen, 150, 20);
-                        return;
-                    } else {
-                        Camera.turnTo(nearestBank);
-                        Movement.moveTo(nearestBank);
-                        Condition.wait(() -> Players.local().tile().distanceTo(nearestBank) < 5, 80, 150);
-                    }
-                    return;
-                }
             } else {
                 Notifications.showNotification("No gem bag found! Dropping gems.");
             }

@@ -1,6 +1,10 @@
 package org.sam;
+import com.google.common.eventbus.Subscribe;
 import org.powbot.api.Condition;
+import org.powbot.api.Events;
+import org.powbot.api.Random;
 import org.powbot.api.event.GameObjectActionEvent;
+import org.powbot.api.event.MessageEvent;
 import org.powbot.api.rt4.Chat;
 import org.powbot.api.rt4.Game;
 import org.powbot.api.rt4.Inventory;
@@ -10,10 +14,8 @@ import org.powbot.api.script.*;
 import org.powbot.api.script.paint.PaintBuilder;
 import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
-import org.sam.Tasks.Crush;
-import org.sam.Tasks.HandleGems;
-import org.sam.Tasks.GoToArea;
-import org.sam.Tasks.Mining;
+import org.sam.Tasks.*;
+import org.w3c.dom.events.EventListener;
 
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
@@ -57,6 +59,26 @@ public class samInfernalShale extends AbstractScript {
     public static void main(String[] args) {
         new ScriptUploader().uploadAndStart("Sam Infernal Shale", "", "R52T90A6VCM", true, false);
     }
+    @Subscribe
+    public void onMessageEvent(MessageEvent messageEvent) {
+        if (messageEvent.getSender() != null && !messageEvent.getSender().isEmpty()) {
+            return;
+        }
+        String msg = messageEvent.getMessage().toLowerCase();
+        System.out.println("msg: " + msg);
+
+        if (msg.contains("sapphires") && msg.contains("emeralds") && msg.contains("rubies")) {
+            Pattern pattern = Pattern.compile("(sapphires|emeralds|rubies|diamonds|dragonstones):\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(msg.toLowerCase());
+            while (matcher.find()) {
+                String gemType = matcher.group(1).toLowerCase();
+                int count = Integer.parseInt(matcher.group(2));
+                String formattedGem = "Uncut " + (gemType.endsWith("s") ? gemType.substring(0, gemType.length() - 1) : gemType);
+                gemBagManager.updateGemCount(formattedGem, count);
+                System.out.println("Updated " + formattedGem + " to " + count);
+            }
+        }
+    }
 
     @Override
     public void onStart() {
@@ -69,23 +91,7 @@ public class samInfernalShale extends AbstractScript {
             Item gemBag = Inventory.stream().name("Gem bag").first();
 
             if (gemBag != null) {
-                if (gemBag.interact("Check")) {
-                    //Condition.sleep(ThreadLocalRandom.current().nextInt(20, 50));
-                    String bagContents = Chat.getChatMessage();
-                    if (bagContents != null && bagContents.toLowerCase().startsWith("your gem bag contains")) {
-                        Pattern pattern = Pattern.compile("(\\d+)\\s+(sapphires|emeralds|rubies|diamonds)");
-                        Matcher matcher = pattern.matcher(bagContents.toLowerCase());
-
-                        while (matcher.find()) {
-                            int count = Integer.parseInt(matcher.group(1));
-                            String gemType = matcher.group(2);
-                            String formattedGem = "Uncut " + gemType.substring(0, gemType.length() - 1); // Remove plural
-                            gemBagManager.updateGemCount(formattedGem, count);
-                            System.out.println("Updated " + formattedGem + " to " + count);
-                        }
-                    }
-
-                }
+                gemBag.interact("Check");
             }
         }
 
@@ -100,6 +106,7 @@ public class samInfernalShale extends AbstractScript {
                         .build()
         );
         //taskList.add(new GoToArea(this));
+        taskList.add(new HandleGemBag(this, gemBagManager));
         taskList.add(new HandleGems(this, GemBag));
         taskList.add(new Crush(this));
         taskList.add(new Mining(this, TickManipulation, selectedRocks));
