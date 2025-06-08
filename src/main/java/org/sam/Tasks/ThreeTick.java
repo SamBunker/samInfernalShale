@@ -31,8 +31,11 @@ public class ThreeTick extends Task {
 
     @Override
     public void execute() {
-        if (Combat.specialAttack() && Combat.specialPercentage() == 100) {
-            Combat.specialAttack(true);
+        if (Movement.running()) {
+            Movement.running(false);
+            Condition.sleep(Random.nextInt(120, 210));
+        }
+        if (Combat.specialPercentage() == 100 && Combat.specialAttack(true)) {
             Condition.sleep(Random.nextInt(120, 210));
         }
 

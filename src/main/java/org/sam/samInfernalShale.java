@@ -40,9 +40,9 @@ import java.util.List;
 
 @ScriptManifest(
         name = "Sam Infernal Shale",
-        description = "Begin inside the infernal shale mining area.",
+        description = "3T, Tick Manipulation, Regular Mining, AFK Mining",
         author = "Sam",
-        version = "1.0",
+        version = "1.1",
         category = ScriptCategory.Mining
 )
 public class samInfernalShale extends AbstractScript {
