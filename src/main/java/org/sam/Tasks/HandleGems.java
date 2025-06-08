@@ -35,12 +35,7 @@ public class HandleGems extends Task {
 
     @Override
     public boolean activate() {
-        for (String gem : GEMS) {
-            if (Inventory.stream().name(gem).isNotEmpty()) {
-                return true; // Gems found
-            }
-        }
-        return false; // No gems were found
+        return Inventory.stream().name("Uncut sapphire", "Uncut emerald", "Uncut ruby", "Uncut diamond", "Uncut dragonstone").contains();
     }
 
     @Override

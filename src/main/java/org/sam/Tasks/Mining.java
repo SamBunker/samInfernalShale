@@ -24,11 +24,6 @@ public class Mining extends Task {
         this.selectedRocks = selectedRocks;
     }
 
-    public boolean hasItem(String name) {
-        return Inventory.stream().name(name).isNotEmpty() ||
-                Equipment.stream().name(name).isNotEmpty();
-    }
-
     @Override
     public boolean activate() {
         return Constants.INFERNAL_SHALE_AREA.contains(Players.local()) && !Inventory.isFull();
@@ -41,10 +36,10 @@ public class Mining extends Task {
             Condition.sleep(Random.nextInt(120, 210));
         }
 
-        if (tickManipulation && !Inventory.isFull() && !hasItem(Constants.WET_CLOTH)) {
+        if (tickManipulation && !Inventory.isFull() && !main.hasItem(Constants.WET_CLOTH)) {
             Npc jim = Npcs.stream().id(Constants.JIM_ID).nearest().first();
             jim.interact("Take-from");
-            Condition.wait(() -> hasItem(Constants.WET_CLOTH), 120, 15);
+            Condition.wait(() -> main.hasItem(Constants.WET_CLOTH), 120, 15);
         }
 
         if (!tickManipulation || selectedRocks == null) return;

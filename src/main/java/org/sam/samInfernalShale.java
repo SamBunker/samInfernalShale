@@ -5,10 +5,7 @@ import org.powbot.api.Events;
 import org.powbot.api.Random;
 import org.powbot.api.event.GameObjectActionEvent;
 import org.powbot.api.event.MessageEvent;
-import org.powbot.api.rt4.Chat;
-import org.powbot.api.rt4.Game;
-import org.powbot.api.rt4.Inventory;
-import org.powbot.api.rt4.Item;
+import org.powbot.api.rt4.*;
 import org.powbot.api.rt4.walking.model.Skill;
 import org.powbot.api.script.*;
 import org.powbot.api.script.paint.PaintBuilder;
@@ -53,6 +50,11 @@ public class samInfernalShale extends AbstractScript {
     private String currentTask = "Idle";
     Boolean TickManipulation;
     Boolean GemBag;
+
+    public boolean hasItem(String name) {
+        return Inventory.stream().name(name).isNotEmpty() ||
+                Equipment.stream().name(name).isNotEmpty();
+    }
 
     private final ArrayList<Task> taskList = new ArrayList<Task>();
 
@@ -105,7 +107,6 @@ public class samInfernalShale extends AbstractScript {
                         .trackSkill(Skill.Mining)
                         .build()
         );
-        //taskList.add(new GoToArea(this));
         taskList.add(new HandleGemBag(this, gemBagManager));
         taskList.add(new HandleGems(this, GemBag));
         taskList.add(new Crush(this));

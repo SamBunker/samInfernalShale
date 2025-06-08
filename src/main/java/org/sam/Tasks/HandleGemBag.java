@@ -108,5 +108,6 @@ public class HandleGemBag extends Task {
         Condition.sleep(Random.nextInt(28, 67));
         Bank.close(true);
         Condition.wait(() -> !bankIsOpen, 150, 20);
+        ScriptManager.INSTANCE.stop();
     }
 }

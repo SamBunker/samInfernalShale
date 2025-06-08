@@ -19,15 +19,10 @@ public class Crush extends Task {
         this.main = main;
     }
 
-    public boolean hasItem(String name) {
-        return Inventory.stream().name(name).isNotEmpty() ||
-                Equipment.stream().name(name).isNotEmpty();
-    }
-
 
     @Override
     public boolean activate() {
-        return Inventory.isFull() && hasItem("Hammer") && hasItem("Chisel");
+        return Inventory.isFull() && main.hasItem("Hammer") && main.hasItem("Chisel");
     }
 
     @Override
@@ -35,13 +30,12 @@ public class Crush extends Task {
         Item hammer = Inventory.stream().name("Hammer").first();
         int maxAttempts = 28;
         if (hammer.valid()) {
+//            Inventory.stream().id(Constants.INFERNAL_SHALE).forEach(item -> hammer.useOn(item)); //may rewrite to attempt this method using more of the API instead
             for (int i = 0; i < maxAttempts; i++) {
                 Item shale = Inventory.stream().id(Constants.INFERNAL_SHALE).last();
                 if (shale.inventoryActions().isEmpty()) break;
-                //long previousCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
                 hammer.useOn(shale);
                 Condition.sleep(Random.nextInt(20, 80));
-                //Condition.wait(() -> Inventory.stream().id(Constants.INFERNAL_SHALE).count() < previousCount, 20, 10);
             }
         }
         Condition.sleep(Random.nextInt(80, 110));
