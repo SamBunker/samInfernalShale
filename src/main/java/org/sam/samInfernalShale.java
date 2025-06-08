@@ -5,6 +5,7 @@ import org.powbot.api.Events;
 import org.powbot.api.Random;
 import org.powbot.api.event.GameObjectActionEvent;
 import org.powbot.api.event.MessageEvent;
+import org.powbot.api.event.SkillExpGainedEvent;
 import org.powbot.api.rt4.*;
 import org.powbot.api.rt4.walking.model.Skill;
 import org.powbot.api.script.*;
@@ -50,6 +51,8 @@ public class samInfernalShale extends AbstractScript {
     private String currentTask = "Idle";
     Boolean TickManipulation;
     Boolean GemBag;
+    public static int rocksMined = 0;
+    private int lastMiningXp = 0;
 
     public boolean hasItem(String name) {
         return Inventory.stream().name(name).isNotEmpty() ||
@@ -61,6 +64,17 @@ public class samInfernalShale extends AbstractScript {
     public static void main(String[] args) {
         new ScriptUploader().uploadAndStart("Sam Infernal Shale", "", "R52T90A6VCM", true, false);
     }
+    @Subscribe
+    public void onExperience(SkillExpGainedEvent event) {
+        if (event.getSkill() == Skill.Mining) {
+            int newXp = Skills.experience(Skill.Mining);
+            if (newXp > lastMiningXp) {
+                samInfernalShale.rocksMined++;
+                lastMiningXp = newXp;
+            }
+        }
+    }
+
     @Subscribe
     public void onMessageEvent(MessageEvent messageEvent) {
         if (messageEvent.getSender() != null && !messageEvent.getSender().isEmpty()) {
@@ -87,14 +101,20 @@ public class samInfernalShale extends AbstractScript {
         List<GameObjectActionEvent> selectedRocks = getOption("SelectedRocks");
         TickManipulation = getOption("TickManipulation");
         GemBag = getOption("GemBag");
-
-
         if (GemBag) {
+            taskList.add(new HandleGemBag(this, gemBagManager));
             Item gemBag = Inventory.stream().name("Gem bag").first();
 
             if (gemBag != null) {
                 gemBag.interact("Check");
             }
+        }
+        taskList.add(new HandleGems(this, GemBag));
+        if (TickManipulation != null) {
+            taskList.add(new ThreeTick(this, selectedRocks));
+        } else {
+            taskList.add(new Mining(this, selectedRocks));
+            taskList.add(new Crush(this));
         }
 
         addPaint(
@@ -104,17 +124,10 @@ public class samInfernalShale extends AbstractScript {
                         .backgroundColor(2)
                         .withTextSize(14F)
                         .addString(() -> "Task: " + currentTask)
+                        .addString(() -> "Rocks Mined: " + rocksMined)
                         .trackSkill(Skill.Mining)
                         .build()
         );
-        taskList.add(new HandleGemBag(this, gemBagManager));
-        taskList.add(new HandleGems(this, GemBag));
-        if (TickManipulation != null) {
-            taskList.add(new ThreeTick(this, selectedRocks));
-        } else {
-            taskList.add(new Mining(this, selectedRocks));
-            taskList.add(new Crush(this));
-        }
     }
 
     @Override
