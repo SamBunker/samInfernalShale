@@ -36,8 +36,9 @@ public class Mining extends Task {
 
     @Override
     public void execute() {
-        if (Combat.specialPercentage() == 100) {
+        if (Combat.specialAttack() && Combat.specialPercentage() == 100) {
             Combat.specialAttack(true);
+            Condition.sleep(Random.nextInt(120, 210));
         }
 
         if (tickManipulation && !Inventory.isFull() && !hasItem(Constants.WET_CLOTH)) {
