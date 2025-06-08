@@ -33,10 +33,10 @@ public class ThreeTick extends Task {
     public void execute() {
         if (Movement.running()) {
             Movement.running(false);
-            Condition.sleep(Random.nextInt(120, 210));
+            Condition.sleep(Random.nextInt(40, 80));
         }
         if (Combat.specialPercentage() == 100 && Combat.specialAttack(true)) {
-            Condition.sleep(Random.nextInt(120, 210));
+            Condition.sleep(Random.nextInt(40, 80));
         }
 
         if (!Inventory.isFull() && !main.hasItem(Constants.WET_CLOTH)) {
@@ -79,7 +79,7 @@ public class ThreeTick extends Task {
             if (initialCount >= 2 && nextEventTile.matrix().distanceTo(Players.local().tile()) < 2.1) {
                 Item shale = Inventory.stream().id(Constants.INFERNAL_SHALE).last();
 
-                if (initialCount >= 6) {
+                if (initialCount >= Random.nextInt(6, 8)) {
                     Condition.sleep(Random.nextInt(6, 9));
                     for (int i = 0; i < 2; i++) {
                         if (hammer.useOn(shale)) {
