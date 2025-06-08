@@ -12,13 +12,14 @@ import org.sam.samInfernalShale;
 
 import java.util.List;
 
-public class Mining extends Task {
+public class ThreeTick extends Task {
     samInfernalShale main;
     private final List<GameObjectActionEvent> selectedRocks;
+    Item hammer = Inventory.stream().name("Hammer").first();
 
-    public Mining(samInfernalShale main, List selectedRocks) {
+    public ThreeTick(samInfernalShale main, List selectedRocks) {
         super();
-        super.name = "Mining Infernal Shale";
+        super.name = "3T Infernal Shale";
         this.main = main;
         this.selectedRocks = selectedRocks;
     }
@@ -30,7 +31,6 @@ public class Mining extends Task {
 
     @Override
     public void execute() {
-
         if (Combat.specialAttack() && Combat.specialPercentage() == 100) {
             Combat.specialAttack(true);
             Condition.sleep(Random.nextInt(120, 210));
@@ -59,7 +59,9 @@ public class Mining extends Task {
         }
 
         if (!wetCloth.interact("Wipe")) return;
-        Condition.sleep(Random.nextInt(90, 104));
+
+        Condition.sleep(Random.nextInt(96, 101));
+
         targetRock.interact("Mine");
         Condition.wait(() -> Players.local().animation() == 12186, 15, 100);
 
@@ -69,8 +71,33 @@ public class Mining extends Task {
         Tile nextEventTile = selectedRocks.get(0).getTile();
         if (nextEventTile.distanceTo(Players.local().tile()) >= 1.1) {
             nextEventTile.matrix().interact("Walk here");
+            long initialCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
+
+            if (initialCount >= 2 && nextEventTile.matrix().distanceTo(Players.local().tile()) < 2.1) {
+                Item shale = Inventory.stream().id(Constants.INFERNAL_SHALE).last();
+
+                if (initialCount >= 6) {
+                    Condition.sleep(Random.nextInt(6, 9));
+                    for (int i = 0; i < 2; i++) {
+                        if (hammer.useOn(shale)) {
+                            Condition.wait(() ->
+                                            Inventory.stream().id(Constants.INFERNAL_SHALE).count() <= initialCount - 1,
+                                    2, 5
+                            );
+                        }
+                    }
+                } else {
+                    Condition.sleep(Random.nextInt(8, 21));
+                    if (hammer.useOn(shale)) {
+                        Condition.wait(() ->
+                                        Inventory.stream().id(Constants.INFERNAL_SHALE).count() <= initialCount - 1,
+                                2, 5
+                        );
+                    }
+                }
+            }
         }
 
-        Condition.sleep(Random.nextInt(35, 42));
+        Condition.sleep(Random.nextInt(30, 40));
     }
 }

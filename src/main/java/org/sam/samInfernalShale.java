@@ -109,8 +109,12 @@ public class samInfernalShale extends AbstractScript {
         );
         taskList.add(new HandleGemBag(this, gemBagManager));
         taskList.add(new HandleGems(this, GemBag));
-        taskList.add(new Crush(this));
-        taskList.add(new Mining(this, TickManipulation, selectedRocks));
+        if (TickManipulation != null) {
+            taskList.add(new ThreeTick(this, selectedRocks));
+        } else {
+            taskList.add(new Mining(this, selectedRocks));
+            taskList.add(new Crush(this));
+        }
     }
 
     @Override
