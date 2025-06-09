@@ -28,9 +28,10 @@ import java.util.List;
                 optionType = OptionType.GAMEOBJECT_ACTIONS
         ),
         @ScriptConfiguration(
-                name = "TickManipulation",
-                description = "Do you want to use Jim's Wet Rag for tick manipulation?",
-                optionType = OptionType.BOOLEAN
+                name = "Mining Method",
+                description = "How would you like to mine shale?",
+                optionType = OptionType.STRING,
+                allowedValues = {"3T Mining", "Mining", "AFK Mining"}
         ),
         @ScriptConfiguration(
                 name = "GemBag",
@@ -49,7 +50,6 @@ import java.util.List;
 public class samInfernalShale extends AbstractScript {
     public GemBagManager gemBagManager = new GemBagManager();
     private String currentTask = "Idle";
-    Boolean TickManipulation;
     Boolean GemBag;
     public static int rocksMined = 0;
     private int lastMiningXp = 0;
@@ -99,23 +99,37 @@ public class samInfernalShale extends AbstractScript {
     @Override
     public void onStart() {
         List<GameObjectActionEvent> selectedRocks = getOption("SelectedRocks");
-        TickManipulation = getOption("TickManipulation");
+        String miningMethod = getOption("Mining Method");
         GemBag = getOption("GemBag");
+
+
+        switch (miningMethod) {
+            case "3T Mining":
+                taskList.add(new ThreeTick(this, selectedRocks));
+                break;
+            case "Mining":
+                taskList.add(new Mining(this, selectedRocks));
+                taskList.add(new Crush(this));
+                break;
+            case "AFK Mining":
+                taskList.add(new AfkMine(this));
+                taskList.add(new Crush(this));
+                break;
+            default:
+                taskList.add(new AfkMine(this));
+                taskList.add(new Crush(this));
+                System.out.println("Unknown mining mode: " + miningMethod);
+                break;
+        }
+
         if (GemBag) {
             taskList.add(new HandleGemBag(this, gemBagManager));
             Item gemBag = Inventory.stream().name("Gem bag").first();
-
             if (gemBag != null) {
                 gemBag.interact("Check");
             }
         }
         taskList.add(new HandleGems(this, GemBag));
-        if (TickManipulation != null) {
-            taskList.add(new ThreeTick(this, selectedRocks));
-        } else {
-            taskList.add(new Mining(this, selectedRocks));
-            taskList.add(new Crush(this));
-        }
 
         addPaint(
                 PaintBuilder.newBuilder()
