@@ -130,7 +130,6 @@ public class samInfernalShale extends AbstractScript {
         }
 
         if (GemBag) {
-            taskList.add(new HandleGemBag(this, gemBagManager));
             Item gemBag = Inventory.stream().name("Gem bag").first();
             if (gemBag != null) {
                 gemBag.interact("Check");

@@ -3,6 +3,7 @@ package org.sam.Tasks;
 import org.powbot.api.Condition;
 import org.powbot.api.Locatable;
 import org.powbot.api.Notifications;
+import org.powbot.api.Random;
 import org.powbot.api.rt4.*;
 import org.sam.Constants;
 import org.sam.GemBagManager;
@@ -68,14 +69,12 @@ public class HandleGems extends Task {
             } else {
                 Notifications.showNotification("No gem bag found! Dropping gems.");
             }
-            for (String gem : GEMS) {
-                while (Inventory.stream().name(gem).isNotEmpty()) {
-                    Item gemItem = Inventory.stream().name(gem).first();
-                    if (gemItem != null && gemItem.interact("Drop")) {
-                        Condition.wait(() -> Inventory.stream().name(gem).isNotEmpty(), 50, 20);
-                    }
-                    Condition.sleep(ThreadLocalRandom.current().nextInt(424, 706));
-                }
+
+            if (gemBagManager.anyGemFull()) {
+                Inventory.stream().name("Uncut sapphire", "Uncut emerald", "Uncut ruby", "Uncut diamond", "Uncut dragonstone").forEach(gem -> {
+                    gem.interact("Drop");
+                    Condition.sleep(Random.nextInt(20, 40));
+                });
             }
         }
     }
