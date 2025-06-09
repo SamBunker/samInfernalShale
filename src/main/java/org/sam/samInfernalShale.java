@@ -1,8 +1,5 @@
 package org.sam;
 import com.google.common.eventbus.Subscribe;
-import org.powbot.api.Condition;
-import org.powbot.api.Events;
-import org.powbot.api.Random;
 import org.powbot.api.event.GameObjectActionEvent;
 import org.powbot.api.event.MessageEvent;
 import org.powbot.api.event.SkillExpGainedEvent;
@@ -13,25 +10,22 @@ import org.powbot.api.script.paint.PaintBuilder;
 import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
 import org.sam.Tasks.*;
-import org.w3c.dom.events.EventListener;
-
 import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.List;
 
 @ScriptConfiguration.List({
         @ScriptConfiguration(
-                name = "SelectedRocks",
-                description = "Select the rocks you'd like to interact with",
-                optionType = OptionType.GAMEOBJECT_ACTIONS
-        ),
-        @ScriptConfiguration(
                 name = "Mining Method",
                 description = "How would you like to mine shale?",
                 optionType = OptionType.STRING,
                 allowedValues = {"3T Mining", "Mining", "AFK Mining"}
+        ),
+        @ScriptConfiguration(
+                name = "SelectedRocks",
+                description = "Select the rocks you'd like to interact with",
+                optionType = OptionType.GAMEOBJECT_ACTIONS
         ),
         @ScriptConfiguration(
                 name = "GemBag",
@@ -48,22 +42,34 @@ import java.util.List;
         category = ScriptCategory.Mining
 )
 public class samInfernalShale extends AbstractScript {
+    public static void main(String[] args) {
+        new ScriptUploader().uploadAndStart("Sam Infernal Shale", "", "R52T90A6VCM", true, false);
+    }
+
     public GemBagManager gemBagManager = new GemBagManager();
     private String currentTask = "Idle";
-    Boolean GemBag;
     public static int rocksMined = 0;
     private int lastMiningXp = 0;
+    Boolean GemBag;
 
     public boolean hasItem(String name) {
         return Inventory.stream().name(name).isNotEmpty() ||
                 Equipment.stream().name(name).isNotEmpty();
     }
 
-    private final ArrayList<Task> taskList = new ArrayList<Task>();
-
-    public static void main(String[] args) {
-        new ScriptUploader().uploadAndStart("Sam Infernal Shale", "", "R52T90A6VCM", true, false);
+    @ValueChanged(keyName = "Mining Method")
+    public void methodChanged(String method) {
+        switch (method) {
+            case "3T Mining":
+            case "Mining":
+                updateVisibility("SelectedRocks", true);
+                break;
+            case "AFK Mining":
+                updateVisibility("SelectedRocks", false);
+                break;
+        }
     }
+
     @Subscribe
     public void onExperience(SkillExpGainedEvent event) {
         if (event.getSkill() == Skill.Mining) {
@@ -96,12 +102,13 @@ public class samInfernalShale extends AbstractScript {
         }
     }
 
+    private final ArrayList<Task> taskList = new ArrayList<Task>();
+
     @Override
     public void onStart() {
         List<GameObjectActionEvent> selectedRocks = getOption("SelectedRocks");
         String miningMethod = getOption("Mining Method");
         GemBag = getOption("GemBag");
-
 
         switch (miningMethod) {
             case "3T Mining":
