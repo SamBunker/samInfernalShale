@@ -136,6 +136,7 @@ public class samInfernalShale extends AbstractScript {
                 gemBag.interact("Check");
             }
         }
+        //Adding this by default to handle gems. If gem bag is disabled, gems will be dropped to the ground.
         taskList.add(new HandleGems(this, GemBag));
 
         addPaint(

@@ -25,6 +25,7 @@ public class Constants {
     public static Area ROPE_AREA = new Area(new Tile(1434, 10080, 2), new Tile(1435, 10076, 2));
     public static Area MIDDLE_FLOOR_SAFE_AREA = new Area(new Tile(1440, 10098, 1), new Tile(1438, 10096, 1));
     public static Area CLOSEST_BANK_AREA = new Area(new Tile(1486,3646, 0), new Tile(1483, 3651, 0));
+
     //Integer IDS
     public static final Integer FIRE_ID = 56370;
     public static final Integer JIM_ID = 14202;
@@ -37,8 +38,5 @@ public class Constants {
     public static final Integer LIFT_TOP = 30258;
     public static final Integer LIFT_BOTTOM = 30259;
 
-
-    //    public static Tile TILE_CONSTANT = new Tile(0, 0, 0);
-    //    public static final Integer INTEGER_CONSTANT = 31845;
 
 }

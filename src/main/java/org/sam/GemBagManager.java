@@ -14,10 +14,6 @@ public class GemBagManager {
         return gemCounts.getOrDefault(gemName, 0);
     }
 
-    public boolean isFull(String gemName) {
-        return getCount(gemName) >= 30;
-    }
-
     public boolean anyGemFull() {
         return gemCounts.values().stream().anyMatch(count -> count >= 60);
     }
