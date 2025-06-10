@@ -8,6 +8,7 @@ import org.powbot.api.rt4.*;
 import org.powbot.api.rt4.stream.TileRadius;
 import org.sam.Constants;
 import org.sam.Task;
+import org.sam.Functions;
 import org.sam.samInfernalShale;
 
 import java.util.List;
@@ -39,13 +40,13 @@ public class ThreeTick extends Task {
             Condition.sleep(Random.nextInt(40, 80));
         }
 
-        if (!Inventory.isFull() && !main.hasItem(Constants.WET_CLOTH)) {
+        if (!Inventory.isFull() && !Functions.hasItem(Constants.WET_CLOTH)) {
             Npc jim = Npcs.stream().id(Constants.JIM_ID).nearest().first();
             jim.interact("Take-from");
             Condition.wait(() -> main.hasItem(Constants.WET_CLOTH), 120, 15);
         }
 
-        if (selectedRocks == null) return;
+        if (selectedRocks == null) return; // causes to sit idle
         Item wetCloth = Inventory.stream().name(Constants.WET_CLOTH).first();
         if (wetCloth == null) return;
 
@@ -66,7 +67,7 @@ public class ThreeTick extends Task {
         Condition.sleep(Random.nextInt(96, 101));
 
         targetRock.interact("Mine");
-        Condition.wait(() -> Players.local().animation() == 12186, 15, 100);
+        Condition.wait(() -> Players.local().animation() == 12186, 15, 100); //What animation is this?
 
         selectedRocks.remove(0);
         selectedRocks.add(event);

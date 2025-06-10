@@ -10,6 +10,8 @@ import org.powbot.api.script.paint.PaintBuilder;
 import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
 import org.sam.Tasks.*;
+import org.sam.Variables;
+import org.sam.Functions;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,11 +28,6 @@ import java.util.List;
                 name = "SelectedRocks",
                 description = "Select the rocks you'd like to interact with",
                 optionType = OptionType.GAMEOBJECT_ACTIONS
-        ),
-        @ScriptConfiguration(
-                name = "GemBag",
-                description = "Deposit gems into your gem bag?",
-                optionType = OptionType.BOOLEAN
         )
 })
 
@@ -46,16 +43,18 @@ public class samInfernalShale extends AbstractScript {
         new ScriptUploader().uploadAndStart("Sam Infernal Shale", "", "R52T90A6VCM", true, false);
     }
 
+    //private final ArrayList<Task> taskList = new ArrayList<Task>(); //moved to constants.java
     public GemBagManager gemBagManager = new GemBagManager();
-    private String currentTask = "Idle";
-    public static int rocksMined = 0;
-    private int lastMiningXp = 0;
-    Boolean GemBag;
+    //private String currentTask = "Idle"; //moved to variables.java
+    //public static int rocksMined = 0; //moved to variables.java
+    //private int lastMiningXp = 0; //removed
+    //private List<GameObjectActionEvent> selectedRocks = getOption("SelectedRocks"); //moved to variables.java
+    //private String miningMethod = getOption("Mining Method"); //moved to variables.java
 
-    public boolean hasItem(String name) {
-        return Inventory.stream().name(name).isNotEmpty() ||
-                Equipment.stream().name(name).isNotEmpty();
-    }
+    // public boolean hasItem(String name) {
+    //     return Inventory.stream().name(name).isNotEmpty() ||
+    //             Equipment.stream().name(name).isNotEmpty();
+    // } // Moved to Functions.java
 
     @ValueChanged(keyName = "Mining Method")
     public void methodChanged(String method) {
@@ -70,15 +69,25 @@ public class samInfernalShale extends AbstractScript {
         }
     }
 
+    // @Subscribe
+    // public void onExperience(SkillExpGainedEvent event) {
+    //     if (event.getSkill() == Skill.Mining) {
+    //         int newXp = Skills.experience(Skill.Mining);
+    //         if (newXp > lastMiningXp) {
+    //             samInfernalShale.rocksMined++;
+    //             lastMiningXp = newXp;
+    //         }
+    //     }
+    // }
+
     @Subscribe
-    public void onExperience(SkillExpGainedEvent event) {
-        if (event.getSkill() == Skill.Mining) {
-            int newXp = Skills.experience(Skill.Mining);
-            if (newXp > lastMiningXp) {
+    public void onInventoryChange(InventoryChangeEvent event) {
+        for (Item added : event.getAddedItems()) {
+            if (added.id() == Constants.INFERNAL_SHALE) {
                 samInfernalShale.rocksMined++;
-                lastMiningXp = newXp;
             }
         }
+
     }
 
     @Subscribe
@@ -89,54 +98,45 @@ public class samInfernalShale extends AbstractScript {
         String msg = messageEvent.getMessage().toLowerCase();
         System.out.println("msg: " + msg);
 
-        if (msg.contains("sapphires") && msg.contains("emeralds") && msg.contains("rubies")) {
-            Pattern pattern = Pattern.compile("(sapphires|emeralds|rubies|diamonds|dragonstones):\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(msg.toLowerCase());
-            while (matcher.find()) {
-                String gemType = matcher.group(1).toLowerCase();
-                int count = Integer.parseInt(matcher.group(2));
-                String formattedGem = "Uncut " + (gemType.endsWith("s") ? gemType.substring(0, gemType.length() - 1) : gemType);
-                gemBagManager.updateGemCount(formattedGem, count);
-                System.out.println("Updated " + formattedGem + " to " + count);
-            }
+        Pattern pattern = Pattern.compile("(sapphires|emeralds|rubies|diamonds|dragonstones):\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(msg.toLowerCase());
+        while (matcher.find()) {
+            String gemType = matcher.group(1).toLowerCase();
+            int count = Integer.parseInt(matcher.group(2));
+            String formattedGem = "Uncut " + (gemType.endsWith("s") ? gemType.substring(0, gemType.length() - 1) : gemType);
+            gemBagManager.updateGemCount(formattedGem, count);
+            System.out.println("Updated " + formattedGem + " to " + count);
         }
     }
 
-    private final ArrayList<Task> taskList = new ArrayList<Task>();
-
     @Override
     public void onStart() {
-        List<GameObjectActionEvent> selectedRocks = getOption("SelectedRocks");
-        String miningMethod = getOption("Mining Method");
-        GemBag = getOption("GemBag");
+        //Item gemBag = Inventory.stream().id(Constants.GEM_BAG_ID).first(); //Moved to Functions.java
 
-        switch (miningMethod) {
+        switch (Variables.miningMethod) {
             case "3T Mining":
-                taskList.add(new ThreeTick(this, selectedRocks));
+                Constants.TASK_LIST.add(new ThreeTick(this, Variables.selectedRocks));
                 break;
             case "Mining":
-                taskList.add(new Mining(this, selectedRocks));
-                taskList.add(new Crush(this));
+                Constants.TASK_LIST.add(new Mining(this, Variables.selectedRocks));
+                Constants.TASK_LIST.add(new Crush(this));
                 break;
             case "AFK Mining":
-                taskList.add(new AfkMine(this));
-                taskList.add(new Crush(this));
+                Constants.TASK_LIST.add(new AfkMine(this));
+                Constants.TASK_LIST.add(new Crush(this));
                 break;
             default:
-                taskList.add(new AfkMine(this));
-                taskList.add(new Crush(this));
-                System.out.println("Unknown mining mode: " + miningMethod);
+                Constants.TASK_LIST.add(new AfkMine(this));
+                Constants.TASK_LIST.add(new Crush(this));
+                System.out.println("Unknown mining mode: " + Variables.miningMethod);
                 break;
         }
 
-        if (GemBag) {
-            Item gemBag = Inventory.stream().name("Gem bag").first();
-            if (gemBag != null) {
-                gemBag.interact("Check");
-            }
+        if (Functions.getGemBag() != null) {
+            gemBag.interact("Check");
         }
-        //Adding this by default to handle gems. If gem bag is disabled, gems will be dropped to the ground.
-        taskList.add(new HandleGems(this, GemBag));
+
+        Constants.TASK_LIST.add(new HandleGems(this, GemBag));
 
         addPaint(
                 PaintBuilder.newBuilder()

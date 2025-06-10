@@ -10,8 +10,6 @@ public class Constants {
         super();
     }
 
-    public ArrayList<String> userTaskList = new ArrayList<String>();
-
     //STRINGS
     public static final String ORE_NAME = "Infernal shale rocks";
     public static final String WET_CLOTH = "Jim's wet cloth";
@@ -38,5 +36,7 @@ public class Constants {
     public static final Integer LIFT_TOP = 30258;
     public static final Integer LIFT_BOTTOM = 30259;
 
+    //ArrayLists
+    public final ArrayList<Task> TASK_LIST = new ArrayList<Task>();
 
 }

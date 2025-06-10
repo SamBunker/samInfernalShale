@@ -14,7 +14,7 @@ import java.util.List;
 
 public class Mining extends Task {
     samInfernalShale main;
-    private final List<GameObjectActionEvent> selectedRocks;
+    //private final List<GameObjectActionEvent> selectedRocks;
 
     public Mining(samInfernalShale main, List selectedRocks) {
         super();
@@ -42,7 +42,7 @@ public class Mining extends Task {
             Condition.wait(() -> main.hasItem(Constants.WET_CLOTH), 120, 15);
         }
 
-        if (selectedRocks == null) return;
+        if (VariabselectedRocks == null) return;
         Item wetCloth = Inventory.stream().name(Constants.WET_CLOTH).first();
         if (wetCloth == null) return;
 
