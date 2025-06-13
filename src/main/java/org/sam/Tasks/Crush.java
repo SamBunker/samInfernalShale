@@ -3,14 +3,9 @@ package org.sam.Tasks;
 import org.powbot.api.Condition;
 import org.powbot.api.Random;
 import org.powbot.api.rt4.*;
-import org.powbot.mobile.rlib.RPowBot;
+import org.sam.*;
 import org.sam.Constants;
-import org.sam.Task;
-import org.sam.Functions;
-important org.sam.Variables;
-import org.sam.samInfernalShale;
-
-import java.util.concurrent.ThreadLocalRandom;
+import org.sam.Variables;
 
 public class Crush extends Task {
     samInfernalShale main;
@@ -23,21 +18,18 @@ public class Crush extends Task {
 
     @Override
     public boolean activate() {
-        return Inventory.isFull() && Functions.hasItem("Hammer") && Functions.hasItem("Chisel");
+        return Inventory.isFull() && Functions.hasItem(Constants.HAMMER) && Functions.hasItem(Constants.CHISEL);
     }
 
     @Override
     public void execute() {
-        Item hammer = Inventory.stream().name("Hammer").first();
-        if (hammer.valid()) {
-//            Inventory.stream().id(Constants.INFERNAL_SHALE).forEach(item -> hammer.useOn(item)); //may rewrite to attempt this method using more of the API instead
-            for (int i = 0; i < Variables.maxCrushAttempts; i++) {
-                Item shale = Inventory.stream().id(Constants.INFERNAL_SHALE).last();
-                if (shale.inventoryActions().isEmpty()) break;
-                hammer.useOn(shale);
+        Item hammer = Inventory.stream().name(Constants.HAMMER).first();
+        for (int i = 0; i < Variables.maxCrushAttempts; i++) {
+            Item shale = Inventory.stream().id(Constants.INFERNAL_SHALE).last();
+            if (shale.inventoryActions().isEmpty()) break;
+            if (hammer.useOn(shale)) {
                 Condition.sleep(Random.nextInt(20, 80));
             }
         }
-        Condition.sleep(Random.nextInt(80, 110));
     }
 }

@@ -13,6 +13,8 @@ public class Constants {
     //STRINGS
     public static final String ORE_NAME = "Infernal shale rocks";
     public static final String WET_CLOTH = "Jim's wet cloth";
+    public static final String HAMMER = "Hammer";
+    public static final String CHISEL = "Chisel";
 
     //AREAS
     public static Area INFERNAL_SHALE_AREA = new Area(new Tile(1463,10105,0), new Tile(1475,10085,0));

@@ -1,21 +1,16 @@
 package org.sam;
 import com.google.common.eventbus.Subscribe;
-import org.powbot.api.event.GameObjectActionEvent;
+import org.powbot.api.event.InventoryChangeEvent;
 import org.powbot.api.event.MessageEvent;
-import org.powbot.api.event.SkillExpGainedEvent;
-import org.powbot.api.rt4.*;
 import org.powbot.api.rt4.walking.model.Skill;
 import org.powbot.api.script.*;
 import org.powbot.api.script.paint.PaintBuilder;
 import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
 import org.sam.Tasks.*;
-import org.sam.Variables;
-import org.sam.Functions;
-import java.util.ArrayList;
+import org.sam.Tasks.Config.MiningConfig;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.List;
 
 @ScriptConfiguration.List({
         @ScriptConfiguration(
@@ -43,18 +38,14 @@ public class samInfernalShale extends AbstractScript {
         new ScriptUploader().uploadAndStart("Sam Infernal Shale", "", "R52T90A6VCM", true, false);
     }
 
-    //private final ArrayList<Task> taskList = new ArrayList<Task>(); //moved to constants.java
-    public GemBagManager gemBagManager = new GemBagManager();
-    //private String currentTask = "Idle"; //moved to variables.java
-    //public static int rocksMined = 0; //moved to variables.java
-    //private int lastMiningXp = 0; //removed
-    //private List<GameObjectActionEvent> selectedRocks = getOption("SelectedRocks"); //moved to variables.java
-    //private String miningMethod = getOption("Mining Method"); //moved to variables.java
+    private final MiningConfig config = new MiningConfig(
+            getOption("SelectedRocks"),
+            getOption("Mining Method")
+    );
 
-    // public boolean hasItem(String name) {
-    //     return Inventory.stream().name(name).isNotEmpty() ||
-    //             Equipment.stream().name(name).isNotEmpty();
-    // } // Moved to Functions.java
+    Constants constants = new Constants();
+    Variables vars = new Variables();
+    public GemBagManager gemBagManager = new GemBagManager();
 
     @ValueChanged(keyName = "Mining Method")
     public void methodChanged(String method) {
@@ -82,12 +73,9 @@ public class samInfernalShale extends AbstractScript {
 
     @Subscribe
     public void onInventoryChange(InventoryChangeEvent event) {
-        for (Item added : event.getAddedItems()) {
-            if (added.id() == Constants.INFERNAL_SHALE) {
-                samInfernalShale.rocksMined++;
-            }
+        if (event.getItemId() == Constants.INFERNAL_SHALE) {
+            Variables.rocksMined++;
         }
-
     }
 
     @Subscribe
@@ -111,32 +99,39 @@ public class samInfernalShale extends AbstractScript {
 
     @Override
     public void onStart() {
-        //Item gemBag = Inventory.stream().id(Constants.GEM_BAG_ID).first(); //Moved to Functions.java
 
-        switch (Variables.miningMethod) {
+        switch (config.getMiningMethod()) {
             case "3T Mining":
-                Constants.TASK_LIST.add(new ThreeTick(this, Variables.selectedRocks));
+                constants.TASK_LIST.add(new TakeCloth(this));
+                constants.TASK_LIST.add(new ThreeTick(this, config));
                 break;
             case "Mining":
-                Constants.TASK_LIST.add(new Mining(this, Variables.selectedRocks));
-                Constants.TASK_LIST.add(new Crush(this));
+                constants.TASK_LIST.add(new TakeCloth(this));
+                constants.TASK_LIST.add(new Mining(this, config));
+                constants.TASK_LIST.add(new Crush(this));
                 break;
             case "AFK Mining":
-                Constants.TASK_LIST.add(new AfkMine(this));
-                Constants.TASK_LIST.add(new Crush(this));
+                constants.TASK_LIST.add(new AfkMine(this));
+                constants.TASK_LIST.add(new Crush(this));
                 break;
             default:
-                Constants.TASK_LIST.add(new AfkMine(this));
-                Constants.TASK_LIST.add(new Crush(this));
-                System.out.println("Unknown mining mode: " + Variables.miningMethod);
+                constants.TASK_LIST.add(new AfkMine(this));
+                constants.TASK_LIST.add(new Crush(this));
+                System.out.println("Unknown mining mode: " + config.getMiningMethod());
                 break;
         }
 
         if (Functions.getGemBag() != null) {
-            gemBag.interact("Check");
+            Functions.getGemBag().interact("Check");
+            constants.TASK_LIST.add(new FillGemBag(this, Functions.getGemBag().valid()));
+        } else {
+            constants.TASK_LIST.add(new DropGems(this));
         }
 
-        Constants.TASK_LIST.add(new HandleGems(this, GemBag));
+        constants.TASK_LIST.add(new FillGemBag(this, Functions.getGemBag().valid()));
+        constants.TASK_LIST.add(new Running(this));
+        constants.TASK_LIST.add(new SpecialAttack(this));
+
 
         addPaint(
                 PaintBuilder.newBuilder()
@@ -144,8 +139,8 @@ public class samInfernalShale extends AbstractScript {
                         .minWidth(450)
                         .backgroundColor(2)
                         .withTextSize(14F)
-                        .addString(() -> "Task: " + currentTask)
-                        .addString(() -> "Rocks Mined: " + rocksMined)
+                        .addString(() -> "Task: " + vars.currentTask)
+                        .addString(() -> "Rocks Mined: " + Variables.rocksMined)
                         .trackSkill(Skill.Mining)
                         .build()
         );
@@ -153,15 +148,25 @@ public class samInfernalShale extends AbstractScript {
 
     @Override
     public void poll() {
-        for (Task task : taskList) {
+        for (Task task : constants.TASK_LIST) {
             if (task.activate()) {
-                currentTask = task.name;
-                task.execute();
+                if (config.getMiningMethod().equals("3T Mining") || config.getMiningMethod().equals("Mining")) {
+                    if (config.getSelectedRocks() == null) {
+                        ScriptManager.INSTANCE.stop();
+                        break;
+                    }
+                }
+                if (Functions.hasItem("pickaxe")) {
+                    ScriptManager.INSTANCE.stop();
+                    break;
+                }
                 if (ScriptManager.INSTANCE.isStopping()) {
                     break;
                 }
+                vars.currentTask = task.name;
+                task.execute();
             }
         }
-        currentTask = "Idle";
+        vars.currentTask = "Idle";
     }
 }

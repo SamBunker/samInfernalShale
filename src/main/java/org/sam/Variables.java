@@ -11,9 +11,5 @@ public class Variables {
 
     //Strings
     public String currentTask = "Idle";
-    public String miningMethod = getOption("Mining Method");
-    Item gemBag = Inventory.stream().id(Constants.GEM_BAG_ID).first();
 
-    //GameObjectActionEvents
-    public List<GameObjectActionEvent> selectedRocks = getOption("SelectedRocks");
 }
