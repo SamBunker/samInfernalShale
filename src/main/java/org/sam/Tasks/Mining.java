@@ -10,7 +10,6 @@ import org.sam.*;
 import org.sam.Constants;
 import org.sam.Tasks.Config.MiningConfig;
 
-
 public class Mining extends Task {
     samInfernalShale main;
     private final MiningConfig config;

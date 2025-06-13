@@ -1,5 +1,4 @@
 package org.sam.Tasks;
-
 import org.powbot.api.Condition;
 import org.powbot.api.Random;
 import org.powbot.api.Tile;
@@ -9,8 +8,6 @@ import org.powbot.api.rt4.stream.TileRadius;
 import org.sam.*;
 import org.sam.Constants;
 import org.sam.Tasks.Config.MiningConfig;
-
-import java.util.List;
 
 public class ThreeTick extends Task {
     samInfernalShale main;
@@ -30,7 +27,7 @@ public class ThreeTick extends Task {
 
     @Override
     public void execute() {
-        GameObjectActionEvent event = config.getSelectedRocks().get(0);
+        GameObjectActionEvent event = Functions.getFirstSelectedRock();
         if (!event.getName().contains(Constants.ORE_NAME)) return;
 
         if (Functions.getTargetRock(event) == null || !Functions.getTargetRock(event).valid()) return;
@@ -50,7 +47,7 @@ public class ThreeTick extends Task {
             config.getSelectedRocks().remove(0);
             config.getSelectedRocks().add(event);
 
-            Tile nextEventTile = config.getSelectedRocks().get(0).getTile();
+            Tile nextEventTile = Functions.getFirstSelectedRock().getTile();
             if (nextEventTile.distanceTo(Players.local().tile()) >= 1.1) {
                 nextEventTile.matrix().interact("Walk here");
                 long initialCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();

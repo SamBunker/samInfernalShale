@@ -11,6 +11,7 @@ import org.sam.Tasks.*;
 import org.sam.Tasks.Config.MiningConfig;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.List;
 
 @ScriptConfiguration.List({
         @ScriptConfiguration(
@@ -38,14 +39,15 @@ public class samInfernalShale extends AbstractScript {
         new ScriptUploader().uploadAndStart("Sam Infernal Shale", "", "R52T90A6VCM", true, false);
     }
 
+    Constants constants = new Constants();
+    Variables vars = new Variables();
+    public GemBagManager gemBagManager = new GemBagManager();
+
+
     private final MiningConfig config = new MiningConfig(
             getOption("SelectedRocks"),
             getOption("Mining Method")
     );
-
-    Constants constants = new Constants();
-    Variables vars = new Variables();
-    public GemBagManager gemBagManager = new GemBagManager();
 
     @ValueChanged(keyName = "Mining Method")
     public void methodChanged(String method) {
