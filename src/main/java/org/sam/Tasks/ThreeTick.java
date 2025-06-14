@@ -7,6 +7,7 @@ import org.powbot.api.event.GameObjectActionEvent;
 import org.powbot.api.rt4.*;
 import org.powbot.api.rt4.stream.TileRadius;
 import org.sam.Constants;
+import org.sam.Functions;
 import org.sam.Task;
 import org.sam.samInfernalShale;
 
@@ -39,10 +40,10 @@ public class ThreeTick extends Task {
             Condition.sleep(Random.nextInt(40, 80));
         }
 
-        if (!Inventory.isFull() && !main.hasItem(Constants.WET_CLOTH)) {
+        if (!Inventory.isFull() && !Functions.hasItem(Constants.WET_CLOTH)) {
             Npc jim = Npcs.stream().id(Constants.JIM_ID).nearest().first();
             jim.interact("Take-from");
-            Condition.wait(() -> main.hasItem(Constants.WET_CLOTH), 120, 15);
+            Condition.wait(() -> Functions.hasItem(Constants.WET_CLOTH), 120, 15);
         }
 
         if (selectedRocks == null) return;

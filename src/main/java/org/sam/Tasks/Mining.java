@@ -7,6 +7,7 @@ import org.powbot.api.event.GameObjectActionEvent;
 import org.powbot.api.rt4.*;
 import org.powbot.api.rt4.stream.TileRadius;
 import org.sam.Constants;
+import org.sam.Functions;
 import org.sam.Task;
 import org.sam.samInfernalShale;
 
@@ -23,26 +24,15 @@ public class Mining extends Task {
         this.selectedRocks = selectedRocks;
     }
 
-    @Override
     public boolean activate() {
-        return Constants.INFERNAL_SHALE_AREA.contains(Players.local()) && !Inventory.isFull();
+        return !selectedRocks.isEmpty()
+                && Constants.INFERNAL_SHALE_AREA.contains(Players.local())
+                && !Inventory.isFull()
+                && Functions.hasItem(" pickaxe")
+                && Functions.hasItem(Constants.WET_CLOTH);
     }
-
     @Override
     public void execute() {
-
-        if (Combat.specialAttack() && Combat.specialPercentage() == 100) {
-            Combat.specialAttack(true);
-            Condition.sleep(Random.nextInt(120, 210));
-        }
-
-        if (!Inventory.isFull() && !main.hasItem(Constants.WET_CLOTH)) {
-            Npc jim = Npcs.stream().id(Constants.JIM_ID).nearest().first();
-            jim.interact("Take-from");
-            Condition.wait(() -> main.hasItem(Constants.WET_CLOTH), 120, 15);
-        }
-
-        if (selectedRocks == null) return;
         Item wetCloth = Inventory.stream().name(Constants.WET_CLOTH).first();
         if (wetCloth == null) return;
 

@@ -1,7 +1,6 @@
 package org.sam;
 import com.google.common.eventbus.Subscribe;
 import org.powbot.api.event.GameObjectActionEvent;
-import org.powbot.api.event.InventoryChangeEvent;
 import org.powbot.api.event.MessageEvent;
 import org.powbot.api.rt4.*;
 import org.powbot.api.rt4.walking.model.Skill;
@@ -10,9 +9,7 @@ import org.powbot.api.script.paint.PaintBuilder;
 import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
 import org.sam.Tasks.*;
-import org.sam.Tasks.Config.MiningConfig;
 
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.List;
@@ -43,19 +40,12 @@ public class samInfernalShale extends AbstractScript {
         new ScriptUploader().uploadAndStart("Sam Infernal Shale", "", "R52T90A6VCM", true, false);
     }
 
-    public MiningConfig config;
-
     public GemBagManager gemBagManager = new GemBagManager();
     private String currentTask = "Idle";
     //public static int rocksMined = 0;
     Variables vars = new Variables();
     Constants constants = new Constants();
     Boolean GemBag;
-
-    public boolean hasItem(String name) {
-        return Inventory.stream().name(name).isNotEmpty() ||
-                Equipment.stream().name(name).isNotEmpty();
-    }
 
     @ValueChanged(keyName = "Mining Method")
     public void methodChanged(String method) {
@@ -114,9 +104,8 @@ public class samInfernalShale extends AbstractScript {
                 break;
         }
 
-        Item gemBag = Inventory.stream().name("Gem bag").first();
-        if (gemBag != null) {
-            gemBag.interact("Check");
+        if (Functions.getGemBag() != null) {
+            Functions.getGemBag().interact("Check");
         }
         constants.TASK_LIST.add(new HandleGems(this, GemBag));
 

@@ -5,6 +5,7 @@ import org.powbot.api.Random;
 import org.powbot.api.rt4.*;
 import org.powbot.mobile.rlib.RPowBot;
 import org.sam.Constants;
+import org.sam.Functions;
 import org.sam.Task;
 import org.sam.samInfernalShale;
 
@@ -22,7 +23,7 @@ public class Crush extends Task {
 
     @Override
     public boolean activate() {
-        return Inventory.isFull() && main.hasItem("Hammer") && main.hasItem("Chisel");
+        return Inventory.isFull() && Functions.hasItem("Hammer") && Functions.hasItem("Chisel");
     }
 
     @Override
