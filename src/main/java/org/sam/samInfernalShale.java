@@ -99,38 +99,28 @@ public class samInfernalShale extends AbstractScript {
     @Override
     public void onStart() {
         List<GameObjectActionEvent> selectedRocks = getOption("SelectedRocks");
-        String method = getOption("Mining Method");
+        String miningMethod = getOption("Mining Method");
 
-        switch (method) {
+        switch (miningMethod) {
             case "3T Mining":
-                constants.TASK_LIST.add(new TakeCloth(this));
                 constants.TASK_LIST.add(new ThreeTick(this, selectedRocks));
                 break;
             case "Mining":
-                config = new MiningConfig(
-                        getOption("SelectedRocks"),
-                        method
-                );
-                constants.TASK_LIST.add(new TakeCloth(this));
                 constants.TASK_LIST.add(new Mining(this, selectedRocks));
                 constants.TASK_LIST.add(new Crush(this));
                 break;
             case "AFK Mining":
-                config = new MiningConfig(
-                        null,
-                        method
-                );
                 constants.TASK_LIST.add(new AfkMine(this));
                 constants.TASK_LIST.add(new Crush(this));
                 break;
             default:
                 constants.TASK_LIST.add(new AfkMine(this));
                 constants.TASK_LIST.add(new Crush(this));
-                System.out.println("Unknown mining mode: " + config.getMiningMethod());
+                System.out.println("Unknown mining mode: " + miningMethod);
                 break;
         }
 
-        if (Functions.getGemBag() != null) {
+        if (Functions.getGemBag().valid()) {
             Functions.getGemBag().interact("Check");
             constants.TASK_LIST.add(new FillGemBag(this, Functions.getGemBag().valid()));
         } else {
