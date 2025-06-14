@@ -21,10 +21,6 @@ public class MiningConfig {
         return miningMethod;
     }
 
-    public void setMiningMethod(String miningMethod) {
-        this.miningMethod = miningMethod;
-    }
-
     public GameObjectActionEvent getFirstSelectedRock() {
         List<GameObjectActionEvent> rocks = getSelectedRocks();
         if (rocks == null || rocks.isEmpty()) {
@@ -33,7 +29,6 @@ public class MiningConfig {
         return rocks.get(0);
     }
 
-    // Optional: Utility methods for safer list manipulation
     public void addSelectedRock(GameObjectActionEvent event) {
         this.selectedRocks.add(event);
     }
