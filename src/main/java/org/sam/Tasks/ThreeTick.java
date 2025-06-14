@@ -9,25 +9,33 @@ import org.sam.*;
 import org.sam.Constants;
 import org.sam.Tasks.Config.MiningConfig;
 
+import java.util.List;
+
 public class ThreeTick extends Task {
     samInfernalShale main;
-    private final MiningConfig config;
+    private final List<GameObjectActionEvent> selectedRocks;
 
-    public ThreeTick(samInfernalShale main, MiningConfig config) {
+    public ThreeTick(samInfernalShale main, List selectedRocks) {
         super();
         super.name = "3T Infernal Shale";
         this.main = main;
-        this.config = config;
+        this.selectedRocks = selectedRocks;
     }
 
     @Override
     public boolean activate() {
-        return !config.getSelectedRocks().isEmpty() && Constants.INFERNAL_SHALE_AREA.contains(Players.local()) && !Inventory.isFull() && Functions.hasItem(" pickaxe", Constants.HAMMER, Constants.CHISEL, Constants.WET_CLOTH);
+        return selectedRocks != null
+                && Constants.INFERNAL_SHALE_AREA.contains(Players.local())
+                && !Inventory.isFull()
+                && Functions.hasItem(" pickaxe")
+                && Functions.hasItem(Constants.HAMMER)
+                && Functions.hasItem(Constants.CHISEL)
+                && Functions.hasItem(Constants.WET_CLOTH);
     }
 
     @Override
     public void execute() {
-        GameObjectActionEvent event = Functions.getFirstSelectedRock();
+        GameObjectActionEvent event = selectedRocks.get(0);
         if (!event.getName().contains(Constants.ORE_NAME)) return;
 
         if (Functions.getTargetRock(event) == null || !Functions.getTargetRock(event).valid()) return;
@@ -44,10 +52,12 @@ public class ThreeTick extends Task {
 
         if (Functions.getTargetRock(event).interact("Mine")) {
             Condition.wait(() -> Players.local().animation() == 12186, 15, 100); //What animation is this?
-            config.getSelectedRocks().remove(0);
-            config.getSelectedRocks().add(event);
+            selectedRocks.remove(0);
+            selectedRocks.add(event);
+//            config.removeSelectedRock(0);
+//            config.addSelectedRock(event);
 
-            Tile nextEventTile = Functions.getFirstSelectedRock().getTile();
+            Tile nextEventTile = selectedRocks.get(0).getTile();
             if (nextEventTile.distanceTo(Players.local().tile()) >= 1.1) {
                 nextEventTile.matrix().interact("Walk here");
                 long initialCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();

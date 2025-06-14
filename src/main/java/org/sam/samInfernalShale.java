@@ -1,5 +1,6 @@
 package org.sam;
 import com.google.common.eventbus.Subscribe;
+import org.powbot.api.event.GameObjectActionEvent;
 import org.powbot.api.event.InventoryChangeEvent;
 import org.powbot.api.event.MessageEvent;
 import org.powbot.api.rt4.walking.model.Skill;
@@ -9,9 +10,10 @@ import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
 import org.sam.Tasks.*;
 import org.sam.Tasks.Config.MiningConfig;
+
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.List;
 
 @ScriptConfiguration.List({
         @ScriptConfiguration(
@@ -31,7 +33,7 @@ import java.util.List;
         name = "Sam Infernal Shale",
         description = "3T, Tick Manipulation, Regular Mining, AFK Mining",
         author = "Sam",
-        version = "1.1",
+        version = "1.0",
         category = ScriptCategory.Mining
 )
 public class samInfernalShale extends AbstractScript {
@@ -39,15 +41,10 @@ public class samInfernalShale extends AbstractScript {
         new ScriptUploader().uploadAndStart("Sam Infernal Shale", "", "R52T90A6VCM", true, false);
     }
 
+    public MiningConfig config;
+    public GemBagManager gemBagManager = new GemBagManager();
     Constants constants = new Constants();
     Variables vars = new Variables();
-    public GemBagManager gemBagManager = new GemBagManager();
-
-
-    private final MiningConfig config = new MiningConfig(
-            getOption("SelectedRocks"),
-            getOption("Mining Method")
-    );
 
     @ValueChanged(keyName = "Mining Method")
     public void methodChanged(String method) {
@@ -76,13 +73,13 @@ public class samInfernalShale extends AbstractScript {
     @Subscribe
     public void onInventoryChange(InventoryChangeEvent event) {
         if (event.getItemId() == Constants.INFERNAL_SHALE) {
-            Variables.rocksMined++;
+            vars.rocksMined++;
         }
     }
 
     @Subscribe
     public void onMessageEvent(MessageEvent messageEvent) {
-        if (messageEvent.getSender() != null && !messageEvent.getSender().isEmpty()) {
+        if (!messageEvent.getSender().isEmpty()) {
             return;
         }
         String msg = messageEvent.getMessage().toLowerCase();
@@ -101,18 +98,28 @@ public class samInfernalShale extends AbstractScript {
 
     @Override
     public void onStart() {
+        List<GameObjectActionEvent> selectedRocks = getOption("SelectedRocks");
+        String method = getOption("Mining Method");
 
-        switch (config.getMiningMethod()) {
+        switch (method) {
             case "3T Mining":
                 constants.TASK_LIST.add(new TakeCloth(this));
-                constants.TASK_LIST.add(new ThreeTick(this, config));
+                constants.TASK_LIST.add(new ThreeTick(this, selectedRocks));
                 break;
             case "Mining":
+                config = new MiningConfig(
+                        getOption("SelectedRocks"),
+                        method
+                );
                 constants.TASK_LIST.add(new TakeCloth(this));
-                constants.TASK_LIST.add(new Mining(this, config));
+                constants.TASK_LIST.add(new Mining(this, selectedRocks));
                 constants.TASK_LIST.add(new Crush(this));
                 break;
             case "AFK Mining":
+                config = new MiningConfig(
+                        null,
+                        method
+                );
                 constants.TASK_LIST.add(new AfkMine(this));
                 constants.TASK_LIST.add(new Crush(this));
                 break;
@@ -142,7 +149,7 @@ public class samInfernalShale extends AbstractScript {
                         .backgroundColor(2)
                         .withTextSize(14F)
                         .addString(() -> "Task: " + vars.currentTask)
-                        .addString(() -> "Rocks Mined: " + Variables.rocksMined)
+                        .addString(() -> "Rocks Mined: " + vars.rocksMined)
                         .trackSkill(Skill.Mining)
                         .build()
         );
@@ -152,7 +159,10 @@ public class samInfernalShale extends AbstractScript {
     public void poll() {
         for (Task task : constants.TASK_LIST) {
             if (task.activate()) {
-                if (config.getMiningMethod().equals("3T Mining") || config.getMiningMethod().equals("Mining")) {
+                vars.currentTask = task.name;
+                task.execute();
+
+                if (config.getMiningMethod().contains("3T Mining") || config.getMiningMethod().equals("Mining")) {
                     if (config.getSelectedRocks() == null) {
                         ScriptManager.INSTANCE.stop();
                         break;
@@ -165,8 +175,7 @@ public class samInfernalShale extends AbstractScript {
                 if (ScriptManager.INSTANCE.isStopping()) {
                     break;
                 }
-                vars.currentTask = task.name;
-                task.execute();
+
             }
         }
         vars.currentTask = "Idle";

@@ -1,7 +1,6 @@
 package org.sam.Tasks.Config;
 
 import org.powbot.api.event.GameObjectActionEvent;
-import org.sam.Tasks.Mining;
 
 import java.util.List;
 
@@ -24,5 +23,20 @@ public class MiningConfig {
 
     public void setMiningMethod(String miningMethod) {
         this.miningMethod = miningMethod;
+    }
+
+    public GameObjectActionEvent getFirstSelectedRock() {
+        return this.getSelectedRocks().get(0);
+    }
+
+    // Optional: Utility methods for safer list manipulation
+    public void addSelectedRock(GameObjectActionEvent event) {
+        this.selectedRocks.add(event);
+    }
+
+    public void removeSelectedRock(int index) {
+        if (index >= 0 && index < this.selectedRocks.size()) {
+            this.selectedRocks.remove(index);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package org.sam.Tasks;
 
 import org.powbot.api.rt4.Inventory;
+import org.powbot.api.rt4.Item;
 import org.sam.Task;
 import org.sam.samInfernalShale;
 
@@ -20,7 +21,9 @@ public class DropGems extends Task {
 
     @Override
     public void execute() {
-        Inventory.stream().nameContains("Uncut ").forEach(item -> item.interact("Drop"));
+        for (Item item : Inventory.stream().nameContains("Uncut ").list()) {
+            item.interact("Drop");
+        }
     }
 
 }

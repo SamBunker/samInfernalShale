@@ -16,17 +16,17 @@ repositories {
     mavenCentral()
     google()
     maven {
-        url = uri("https://repo.powbot.org/releases")
+        url "https://repo.powbot.org/releases"
     }
 }
 
 dependencies {
-    implementation('org.powbot:client-sdk:1.+')
-    implementation('org.powbot:client-sdk-loader:1.+')
-    implementation('com.google.guava:guava:31.1-jre')
+    implementation('org.powbot:client-sdk:[1.+,1.0.99-SNAPSHOT)')
+    implementation('org.powbot:client-sdk-loader:[1.+,1.0.99-SNAPSHOT)')
+    implementation('com.google.guava:guava:32.0.1-android')
     implementation('com.squareup.okhttp:okhttp:2.7.5')
     implementation('org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4')
-    implementation('com.google.code.gson:gson:2.8.6')
+    implementation('com.google.code.gson:gson:2.8.9')
 
     implementation "io.grpc:grpc-okhttp:$grpc_version" // CURRENT_GRPC_VERSION   1.14.0-SNAPSHOT
     implementation "io.grpc:grpc-protobuf-lite:$grpc_version" // CURRENT_GRPC_VERSION
