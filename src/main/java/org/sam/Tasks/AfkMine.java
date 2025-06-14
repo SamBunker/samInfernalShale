@@ -1,14 +1,11 @@
 package org.sam.Tasks;
 
 import org.powbot.api.Condition;
-import org.powbot.api.Random;
-import org.powbot.api.event.GameObjectActionEvent;
 import org.powbot.api.rt4.*;
 import org.sam.Constants;
+import org.sam.Functions;
 import org.sam.Task;
 import org.sam.samInfernalShale;
-
-import java.util.List;
 
 public class AfkMine extends Task {
     samInfernalShale main;
@@ -21,24 +18,19 @@ public class AfkMine extends Task {
 
     @Override
     public boolean activate() {
-        return Constants.INFERNAL_SHALE_AREA.contains(Players.local()) && !Inventory.isFull();
+        return Constants.INFERNAL_SHALE_AREA.contains(Players.local()) && !Inventory.isFull() && Functions.hasItem("pickaxe");
     }
 
     @Override
     public void execute() {
-        if (Movement.running(false)) {
-            Movement.running(true);
-            Condition.wait(() -> Movement.running(true), 60, 80);
-        }
-
-        if (Combat.specialAttack() && Combat.specialPercentage() == 100) {
-            Combat.specialAttack(true);
-            Condition.sleep(Random.nextInt(120, 210));
-        }
-
         if (Players.local().animation() != -1) return;
 
-        GameObject activeShale = Objects.stream().id(Constants.INFERNAL_SHALE_DEPOSIT_ID).action("Mine").first();
+        GameObject activeShale = Objects.stream()
+                .within(15)
+                .id(Constants.INFERNAL_SHALE_DEPOSIT_ID)
+                .action("Mine")
+                .nearest()
+                .first();
         if (activeShale == null) return;
 
         if (!activeShale.inViewport()) {
@@ -47,7 +39,8 @@ public class AfkMine extends Task {
             Condition.wait(() -> activeShale.getTile().distanceTo(Players.local().tile()) < 3, 60, 80);
         }
 
-        activeShale.interact("Mine");
-        Condition.wait(() -> Players.local().animation() == 7139, 80, 100);
+        if (activeShale.interact("Mine")) {
+            Condition.wait(() -> Players.local().animation() == 7139, 80, 100);
+        }
     }
 }
