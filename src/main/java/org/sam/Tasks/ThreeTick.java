@@ -65,6 +65,8 @@ public class ThreeTick extends Task {
 
         Condition.sleep(Random.nextInt(96, 101));
 
+        // don't forget about this - vars.rocksMined++;
+
         targetRock.interact("Mine");
         Condition.wait(() -> Players.local().animation() == 12186, 15, 100);
 
