@@ -12,4 +12,5 @@ public class Variables {
     //Strings
     public String currentTask = "Idle";
 
+    public boolean awaitingShale = false;
 }

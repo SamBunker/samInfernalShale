@@ -14,6 +14,7 @@ import java.util.List;
 public class Mining extends Task {
     samInfernalShale main;
     public MiningConfig config;
+    Variables vars = new Variables();
 
     public Mining(samInfernalShale main, MiningConfig config) {
         super();
@@ -47,6 +48,8 @@ public class Mining extends Task {
 
         Condition.sleep(Random.nextInt(90, 104));
         if (Functions.getTargetRock(event).interact("Mine")) {
+            vars.awaitingShale = true;
+            //vars.rocksMined++;
             Condition.wait(() -> Players.local().animation() == 12186, 15, 100);
             config.removeSelectedRock(0);
             config.addSelectedRock(event);

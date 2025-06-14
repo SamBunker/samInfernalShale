@@ -12,6 +12,7 @@ import org.sam.Constants;
 public class ThreeTick extends Task {
     samInfernalShale main;
     public MiningConfig config;
+    Variables vars = new Variables();
 
     public ThreeTick(samInfernalShale main, MiningConfig config) {
         super();
@@ -49,6 +50,8 @@ public class ThreeTick extends Task {
         Condition.sleep(Random.nextInt(96, 101));
 
         if (Functions.getTargetRock(event).interact("Mine")) {
+            vars.awaitingShale = true;
+            //vars.rocksMined++;
             Condition.wait(() -> Players.local().animation() == 12186, 15, 100); //What animation is this?
             config.removeSelectedRock(0);
             config.addSelectedRock(event);

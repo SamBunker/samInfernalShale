@@ -1,16 +1,17 @@
 package org.sam;
 import com.google.common.eventbus.Subscribe;
+import org.powbot.api.Color;
 import org.powbot.api.event.GameObjectActionEvent;
 import org.powbot.api.event.InventoryChangeEvent;
 import org.powbot.api.event.MessageEvent;
+import org.powbot.api.event.SkillExpGainedEvent;
+import org.powbot.api.rt4.Skills;
 import org.powbot.api.rt4.walking.model.Skill;
 import org.powbot.api.script.*;
 import org.powbot.api.script.paint.PaintBuilder;
 import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
 import org.sam.Tasks.*;
-import org.sam.MiningConfig;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,23 +59,26 @@ public class samInfernalShale extends AbstractScript {
         }
     }
 
-    // @Subscribe
-    // public void onExperience(SkillExpGainedEvent event) {
-    //     if (event.getSkill() == Skill.Mining) {
-    //         int newXp = Skills.experience(Skill.Mining);
-    //         if (newXp > lastMiningXp) {
-    //             samInfernalShale.rocksMined++;
-    //             lastMiningXp = newXp;
-    //         }
-    //     }
-    // }
+    int lastMiningXp;
+     @Subscribe
+     public void onExperience(SkillExpGainedEvent event) {
+         if (event.getSkill() == Skill.Mining) {
+             int newXp = Skills.experience(Skill.Mining);
+             if (newXp > lastMiningXp) {
+                 vars.rocksMined++;
+                 lastMiningXp = newXp;
+             }
+         }
+     }
 
-    @Subscribe
-    public void onInventoryChange(InventoryChangeEvent event) {
-        if (event.getItemId() == Constants.INFERNAL_SHALE) {
-            vars.rocksMined++;
-        }
-    }
+//    @Subscribe
+//    public void onInventoryChange(InventoryChangeEvent event) {
+//        if (!vars.awaitingShale) return;
+//        if (event.getItemId() == Constants.INFERNAL_SHALE && event.getQuantityChange() > 0) {
+//            vars.rocksMined += event.getQuantityChange();
+//            vars.awaitingShale = false;
+//        }
+//    }
 
     @Subscribe
     public void onMessageEvent(MessageEvent messageEvent) {
@@ -139,7 +143,7 @@ public class samInfernalShale extends AbstractScript {
                 PaintBuilder.newBuilder()
                         .minHeight(150)
                         .minWidth(450)
-                        .backgroundColor(2)
+                        .backgroundColor(Color.argb(175, 0, 0, 0))
                         .withTextSize(14F)
                         .addString(() -> "Task: " + vars.currentTask)
                         .addString(() -> "Rocks Mined: " + vars.rocksMined)
