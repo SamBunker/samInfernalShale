@@ -6,71 +6,57 @@ import org.powbot.api.Tile;
 import org.powbot.api.event.GameObjectActionEvent;
 import org.powbot.api.rt4.*;
 import org.powbot.api.rt4.stream.TileRadius;
+import org.sam.*;
 import org.sam.Constants;
-import org.sam.Task;
-import org.sam.samInfernalShale;
 
 import java.util.List;
 
 public class Mining extends Task {
     samInfernalShale main;
-    private final List<GameObjectActionEvent> selectedRocks;
+    public MiningConfig config;
 
-    public Mining(samInfernalShale main, List selectedRocks) {
+    public Mining(samInfernalShale main, MiningConfig config) {
         super();
         super.name = "Mining Infernal Shale";
         this.main = main;
-        this.selectedRocks = selectedRocks;
+        this.config = config;
     }
 
     @Override
     public boolean activate() {
-        return Constants.INFERNAL_SHALE_AREA.contains(Players.local()) && !Inventory.isFull();
+        return Constants.INFERNAL_SHALE_AREA.contains(Players.local())
+                && !Inventory.isFull()
+                && Functions.hasItem(" pickaxe")
+                && Functions.hasItem(Constants.WET_CLOTH);
     }
 
     @Override
     public void execute() {
+        GameObjectActionEvent event = config.getFirstSelectedRock();
+        if (!event.getName().contains(Constants.ORE_NAME)) return;
 
-        if (Combat.specialAttack() && Combat.specialPercentage() == 100) {
-            Combat.specialAttack(true);
-            Condition.sleep(Random.nextInt(120, 210));
-        }
+        if (Functions.getTargetRock(event) == null || !Functions.getTargetRock(event).valid()) return;
 
-        if (!Inventory.isFull() && !main.hasItem(Constants.WET_CLOTH)) {
-            Npc jim = Npcs.stream().id(Constants.JIM_ID).nearest().first();
-            jim.interact("Take-from");
-            Condition.wait(() -> main.hasItem(Constants.WET_CLOTH), 120, 15);
-        }
-
-        if (selectedRocks == null) return;
-        Item wetCloth = Inventory.stream().name(Constants.WET_CLOTH).first();
-        if (wetCloth == null) return;
-
-        GameObjectActionEvent event = selectedRocks.get(0);
-        if (!event.getName().contains("Infernal shale rocks")) return;
-
-        GameObject targetRock = Objects.stream().at(event.getTile()).name(event.getName()).action("Mine").first();
-        if (targetRock == null || !targetRock.valid()) return;
-
-        TileRadius radius = new TileRadius(targetRock.tile(), 5);
+        TileRadius radius = new TileRadius(Functions.getTargetRock(event).tile(), 5);
         if (radius.getTile().distanceTo(Players.local().tile()) > 4) {
             event.getTile().matrix().interact("Walk here");
             Condition.wait(() -> radius.getTile().distanceTo(Players.local().tile()) < 1, 37, 20);
         }
 
-        if (!wetCloth.interact("Wipe")) return;
+        if (!Functions.getFirstInventoryItemByID(Constants.WET_CLOTH_ID).interact("Wipe")) return;
+
         Condition.sleep(Random.nextInt(90, 104));
-        targetRock.interact("Mine");
-        Condition.wait(() -> Players.local().animation() == 12186, 15, 100);
+        if (Functions.getTargetRock(event).interact("Mine")) {
+            Condition.wait(() -> Players.local().animation() == 12186, 15, 100);
+            config.removeSelectedRock(0);
+            config.addSelectedRock(event);
 
-        selectedRocks.remove(0);
-        selectedRocks.add(event);
+            Tile nextEventTile = config.getFirstSelectedRock().getTile();
+            if (nextEventTile.distanceTo(Players.local().tile()) >= 1.1) {
+                nextEventTile.matrix().interact("Walk here");
+            }
 
-        Tile nextEventTile = selectedRocks.get(0).getTile();
-        if (nextEventTile.distanceTo(Players.local().tile()) >= 1.1) {
-            nextEventTile.matrix().interact("Walk here");
+            Condition.sleep(Random.nextInt(35, 42));
         }
-
-        Condition.sleep(Random.nextInt(35, 42));
     }
 }
