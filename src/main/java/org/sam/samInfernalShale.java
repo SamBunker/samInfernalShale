@@ -9,8 +9,7 @@ import org.powbot.api.script.paint.PaintBuilder;
 import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
 import org.sam.Tasks.*;
-import org.sam.Tasks.Config.MiningConfig;
-
+import org.sam.MiningConfig;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -98,39 +97,43 @@ public class samInfernalShale extends AbstractScript {
 
     @Override
     public void onStart() {
-        List<GameObjectActionEvent> selectedRocks = getOption("SelectedRocks");
-        String miningMethod = getOption("Mining Method");
+        config = new MiningConfig(
+                getOption("SelectedRocks"),
+                getOption("Mining Method")
+        );
 
-        switch (miningMethod) {
+        constants.TASK_LIST.add(new Running(this));
+        constants.TASK_LIST.add(new GoToRocks(this, config));
+        constants.TASK_LIST.add(new SpecialAttack(this));
+
+        if (Functions.getFirstInventoryItemByID(Constants.GEM_BAG_ID).valid()) {
+            Functions.getFirstInventoryItemByID(Constants.GEM_BAG_ID).interact("Check");
+            constants.TASK_LIST.add(new FillGemBag(this, Functions.getGemBag().valid()));
+        } else {
+            constants.TASK_LIST.add(new DropGems(this));
+        }
+
+        switch (config.getMiningMethod()) {
             case "3T Mining":
-                constants.TASK_LIST.add(new ThreeTick(this, selectedRocks));
+                constants.TASK_LIST.add(new TakeCloth(this));
+                constants.TASK_LIST.add(new ThreeTick(this, config));
                 break;
             case "Mining":
-                constants.TASK_LIST.add(new Mining(this, selectedRocks));
+                constants.TASK_LIST.add(new TakeCloth(this));
+                constants.TASK_LIST.add(new Mining(this, config));
                 constants.TASK_LIST.add(new Crush(this));
                 break;
             case "AFK Mining":
                 constants.TASK_LIST.add(new AfkMine(this));
                 constants.TASK_LIST.add(new Crush(this));
                 break;
+
             default:
                 constants.TASK_LIST.add(new AfkMine(this));
                 constants.TASK_LIST.add(new Crush(this));
-                System.out.println("Unknown mining mode: " + miningMethod);
+                System.out.println("Unknown mining mode: " + config.getMiningMethod());
                 break;
         }
-
-        if (Functions.getGemBag().valid()) {
-            Functions.getGemBag().interact("Check");
-            constants.TASK_LIST.add(new FillGemBag(this, Functions.getGemBag().valid()));
-        } else {
-            constants.TASK_LIST.add(new DropGems(this));
-        }
-
-        constants.TASK_LIST.add(new FillGemBag(this, Functions.getGemBag().valid()));
-        constants.TASK_LIST.add(new Running(this));
-        constants.TASK_LIST.add(new SpecialAttack(this));
-
 
         addPaint(
                 PaintBuilder.newBuilder()
@@ -143,6 +146,7 @@ public class samInfernalShale extends AbstractScript {
                         .trackSkill(Skill.Mining)
                         .build()
         );
+        vars.currentTask = "Idle";
     }
 
     @Override
@@ -152,22 +156,20 @@ public class samInfernalShale extends AbstractScript {
                 vars.currentTask = task.name;
                 task.execute();
 
-                if (config.getMiningMethod().contains("3T Mining") || config.getMiningMethod().equals("Mining")) {
+                if (config.getMiningMethod().equals("3T Mining") || config.getMiningMethod().equals("Mining")) {
                     if (config.getSelectedRocks() == null) {
                         ScriptManager.INSTANCE.stop();
                         break;
                     }
                 }
-                if (Functions.hasItem("pickaxe")) {
+                if (!Functions.hasItem("pickaxe")) {
                     ScriptManager.INSTANCE.stop();
                     break;
                 }
                 if (ScriptManager.INSTANCE.isStopping()) {
                     break;
                 }
-
             }
         }
-        vars.currentTask = "Idle";
     }
 }

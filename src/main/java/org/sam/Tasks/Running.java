@@ -17,12 +17,12 @@ public class Running extends Task {
 
     @Override
     public boolean activate() {
-        return !Movement.running() && Movement.energyLevel() > Random.nextInt(13, 16);
+        return Movement.running();
     }
 
     @Override
     public void execute() {
-        Movement.running(true);
-        Condition.wait(Movement::running, 80, 10);
+        Movement.running(false);
+        Condition.sleep(Random.nextInt(22, 50));
     }
 }

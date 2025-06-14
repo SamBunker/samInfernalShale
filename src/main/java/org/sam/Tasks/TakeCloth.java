@@ -19,7 +19,7 @@ public class TakeCloth extends Task {
 
     @Override
     public boolean activate() {
-        return !Functions.hasItem(Constants.WET_CLOTH) && !Inventory.isFull();
+        return !Functions.hasItem(Constants.WET_CLOTH) && !Inventory.isFull() && Constants.INFERNAL_SHALE_AREA.contains(Players.local());
     }
 
     @Override

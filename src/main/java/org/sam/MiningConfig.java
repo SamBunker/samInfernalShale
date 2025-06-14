@@ -1,4 +1,4 @@
-package org.sam.Tasks.Config;
+package org.sam;
 
 import org.powbot.api.event.GameObjectActionEvent;
 
@@ -8,7 +8,7 @@ public class MiningConfig {
     private final List<GameObjectActionEvent> selectedRocks;
     private String miningMethod;
 
-    public MiningConfig(List<GameObjectActionEvent> selectedRocks, String miningMethod) {
+    public MiningConfig(List selectedRocks, String miningMethod) {
         this.selectedRocks = selectedRocks;
         this.miningMethod = miningMethod;
     }
@@ -26,7 +26,11 @@ public class MiningConfig {
     }
 
     public GameObjectActionEvent getFirstSelectedRock() {
-        return this.getSelectedRocks().get(0);
+        List<GameObjectActionEvent> rocks = getSelectedRocks();
+        if (rocks == null || rocks.isEmpty()) {
+            return null;
+        }
+        return rocks.get(0);
     }
 
     // Optional: Utility methods for safer list manipulation

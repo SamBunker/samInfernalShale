@@ -18,8 +18,8 @@ public class Functions {
         return Inventory.stream().id(Constants.GEM_BAG_ID).first();
     }
 
-    public static Item getWetCloth() {
-        return Inventory.stream().name(Constants.WET_CLOTH).first();
+    public static Item getFirstInventoryItemByID(int id) {
+        return Inventory.stream().id(id).first();
     }
 
     public static Item getHammer() {

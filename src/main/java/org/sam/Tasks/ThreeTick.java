@@ -7,25 +7,22 @@ import org.powbot.api.rt4.*;
 import org.powbot.api.rt4.stream.TileRadius;
 import org.sam.*;
 import org.sam.Constants;
-import org.sam.Tasks.Config.MiningConfig;
 
-import java.util.List;
 
 public class ThreeTick extends Task {
     samInfernalShale main;
-    private final List<GameObjectActionEvent> selectedRocks;
+    public MiningConfig config;
 
-    public ThreeTick(samInfernalShale main, List selectedRocks) {
+    public ThreeTick(samInfernalShale main, MiningConfig config) {
         super();
         super.name = "3T Infernal Shale";
         this.main = main;
-        this.selectedRocks = selectedRocks;
+        this.config = config;
     }
 
     @Override
     public boolean activate() {
-        return selectedRocks != null
-                && Constants.INFERNAL_SHALE_AREA.contains(Players.local())
+        return Constants.INFERNAL_SHALE_AREA.contains(Players.local())
                 && !Inventory.isFull()
                 && Functions.hasItem(" pickaxe")
                 && Functions.hasItem(Constants.HAMMER)
@@ -35,10 +32,11 @@ public class ThreeTick extends Task {
 
     @Override
     public void execute() {
-        GameObjectActionEvent event = selectedRocks.get(0);
+        GameObjectActionEvent event = config.getFirstSelectedRock();
         if (!event.getName().contains(Constants.ORE_NAME)) return;
 
-        if (Functions.getTargetRock(event) == null || !Functions.getTargetRock(event).valid()) return;
+        Functions.getTargetRock(event);
+        if (!Functions.getTargetRock(event).valid()) return;
 
         TileRadius radius = new TileRadius(Functions.getTargetRock(event).tile(), 5);
         if (radius.getTile().distanceTo(Players.local().tile()) > 4) {
@@ -46,18 +44,16 @@ public class ThreeTick extends Task {
             Condition.wait(() -> radius.getTile().distanceTo(Players.local().tile()) < 1, 37, 20);
         }
 
-        if (!Functions.getWetCloth().interact("Wipe")) return;
+        if (!Functions.getFirstInventoryItemByID(Constants.WET_CLOTH_ID).interact("Wipe")) return;
 
         Condition.sleep(Random.nextInt(96, 101));
 
         if (Functions.getTargetRock(event).interact("Mine")) {
             Condition.wait(() -> Players.local().animation() == 12186, 15, 100); //What animation is this?
-            selectedRocks.remove(0);
-            selectedRocks.add(event);
-//            config.removeSelectedRock(0);
-//            config.addSelectedRock(event);
+            config.removeSelectedRock(0);
+            config.addSelectedRock(event);
 
-            Tile nextEventTile = selectedRocks.get(0).getTile();
+            Tile nextEventTile = config.getFirstSelectedRock().getTile();
             if (nextEventTile.distanceTo(Players.local().tile()) >= 1.1) {
                 nextEventTile.matrix().interact("Walk here");
                 long initialCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();

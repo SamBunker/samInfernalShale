@@ -8,7 +8,6 @@ import org.powbot.api.rt4.*;
 import org.powbot.api.rt4.stream.TileRadius;
 import org.sam.*;
 import org.sam.Constants;
-import org.sam.Tasks.Config.MiningConfig;
 
 import java.util.List;
 
@@ -16,16 +15,16 @@ public class Mining extends Task {
     samInfernalShale main;
     public MiningConfig config;
 
-    public Mining(samInfernalShale main, List<GameObjectActionEvent> selectedRocks) {
+    public Mining(samInfernalShale main, MiningConfig config) {
         super();
         super.name = "Mining Infernal Shale";
         this.main = main;
+        this.config = config;
     }
 
     @Override
     public boolean activate() {
-        return !config.getSelectedRocks().isEmpty()
-                && Constants.INFERNAL_SHALE_AREA.contains(Players.local())
+        return Constants.INFERNAL_SHALE_AREA.contains(Players.local())
                 && !Inventory.isFull()
                 && Functions.hasItem(" pickaxe")
                 && Functions.hasItem(Constants.WET_CLOTH);
@@ -44,7 +43,7 @@ public class Mining extends Task {
             Condition.wait(() -> radius.getTile().distanceTo(Players.local().tile()) < 1, 37, 20);
         }
 
-        if (!Functions.getWetCloth().interact("Wipe")) return;
+        if (!Functions.getFirstInventoryItemByID(Constants.WET_CLOTH_ID).interact("Wipe")) return;
 
         Condition.sleep(Random.nextInt(90, 104));
         if (Functions.getTargetRock(event).interact("Mine")) {
