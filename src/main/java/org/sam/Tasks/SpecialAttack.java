@@ -23,9 +23,7 @@ public class SpecialAttack extends Task {
 
     @Override
     public void execute() {
-        if (Combat.specialAttack() && Combat.specialPercentage() == 100) {
-            Combat.specialAttack(true);
-            Condition.sleep(Random.nextInt(45, 106));
-        }
+        Combat.specialAttack(true);
+        Condition.sleep(Random.nextInt(45, 106));
     }
 }

@@ -103,8 +103,8 @@ public class samInfernalShale extends AbstractScript {
         );
 
         constants.TASK_LIST.add(new Running(this));
-        constants.TASK_LIST.add(new GoToRocks(this, config));
         constants.TASK_LIST.add(new SpecialAttack(this));
+        constants.TASK_LIST.add(new GoToRocks(this, config));
 
         if (Functions.getFirstInventoryItemByID(Constants.GEM_BAG_ID).valid()) {
             Functions.getFirstInventoryItemByID(Constants.GEM_BAG_ID).interact("Check");
