@@ -40,6 +40,8 @@ public class AfkMine extends Task {
         }
 
         if (activeShale.interact("Mine")) {
+            main.vars.miningAttempts++;
+            System.out.println("Mining attempt #" + main.vars.miningAttempts);
             Condition.wait(() -> Players.local().animation() == 7139, 80, 100);
         }
     }

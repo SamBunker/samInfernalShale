@@ -47,11 +47,20 @@ public class ThreeTick extends Task {
 
         if (!Functions.getFirstInventoryItemByID(Constants.WET_CLOTH_ID).interact("Wipe")) return;
 
-        Condition.sleep(Random.nextInt(260, 280));
+        long startTime = System.currentTimeMillis();
+        int currentAnimation = Players.local().animation();
+
+        Condition.wait(() -> {
+            long elapsed = System.currentTimeMillis() - startTime;
+            boolean animationChanged = Players.local().animation() != currentAnimation;
+            return (elapsed >= 200 && animationChanged) || elapsed >= 280;
+        }, 20, 50);
+
+        Condition.sleep(Random.nextInt(50, 70));
 
         if (Functions.getTargetRock(event).interact("Mine")) {
-            vars.awaitingShale = true;
-            //vars.rocksMined++;
+            main.vars.miningAttempts++;
+            System.out.println("Mining attempt #" + main.vars.miningAttempts);
             Condition.wait(() -> Players.local().animation() == 12186, 15, 100); //What animation is this?
             config.removeSelectedRock(0);
             config.addSelectedRock(event);

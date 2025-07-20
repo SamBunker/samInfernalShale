@@ -48,8 +48,8 @@ public class Mining extends Task {
 
         Condition.sleep(Random.nextInt(100, 112));
         if (Functions.getTargetRock(event).interact("Mine")) {
-            vars.awaitingShale = true;
-            //vars.rocksMined++;
+            main.vars.miningAttempts++;
+            System.out.println("Mining attempt #" + main.vars.miningAttempts);
             Condition.wait(() -> Players.local().animation() == 12186, 15, 100);
             config.removeSelectedRock(0);
             config.addSelectedRock(event);

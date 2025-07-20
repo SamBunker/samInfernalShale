@@ -18,7 +18,7 @@ public class SpecialAttack extends Task {
 
     @Override
     public boolean activate() {
-        return Combat.specialAttack() && Combat.specialPercentage() == 100 && Functions.hasItem("Dragon pickaxe") && Functions.hasItem("Crystal pickaxe") && Functions.hasItem("Infernal pickaxe");
+        return !Combat.specialAttack() && Combat.specialPercentage() == 100 && (Functions.hasItem("Dragon pickaxe") || Functions.hasItem("Crystal pickaxe") || Functions.hasItem("Infernal pickaxe"));
     }
 
     @Override

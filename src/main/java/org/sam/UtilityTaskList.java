@@ -15,6 +15,7 @@ public class UtilityTaskList implements TaskListInterface {
     }
     
     private void initializeUtilityTasks() {
+        tasks.add(new TimingReset(main));
         tasks.add(new Running(main));
         tasks.add(new SpecialAttack(main));
     }
