@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
         name = "Sam Infernal Shale",
         description = "3T, Tick Manipulation, Regular Mining, AFK Mining",
         author = "Sam",
-        version = "1.1",
+        version = "1.2",
         category = ScriptCategory.Mining
 )
 public class samInfernalShale extends AbstractScript {
