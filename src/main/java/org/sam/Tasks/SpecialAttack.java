@@ -3,6 +3,7 @@ package org.sam.Tasks;
 import org.powbot.api.Condition;
 import org.powbot.api.Random;
 import org.powbot.api.rt4.Combat;
+import org.powbot.api.rt4.Equipment;
 import org.sam.Functions;
 import org.sam.Task;
 import org.sam.samInfernalShale;
@@ -18,7 +19,9 @@ public class SpecialAttack extends Task {
 
     @Override
     public boolean activate() {
-        return !Combat.specialAttack() && Combat.specialPercentage() == 100 && (Functions.hasItem("Dragon pickaxe") || Functions.hasItem("Crystal pickaxe") || Functions.hasItem("Infernal pickaxe"));
+        boolean hasSpecialPickaxe = Functions.hasItem("Dragon pickaxe") || Functions.hasItem("Crystal pickaxe") || Functions.hasItem("Infernal pickaxe");
+        boolean pickaxeEquipped = Equipment.stream().nameContains("pickaxe").isNotEmpty();
+        return !Combat.specialAttack() && Combat.specialPercentage() == 100 && hasSpecialPickaxe && pickaxeEquipped;
     }
 
     @Override

@@ -10,8 +10,10 @@ import java.util.regex.Pattern;
 public class PriceFetcher {
     private static final String API_URL = "https://prices.runescape.wiki/api/v1/osrs/latest";
     private static final int INFERNAL_SHALE_ID = 30848;
+    private static final int CRUSHED_INFERNAL_SHALE_ID = 30847;
     
-    private int cachedPrice = 0;
+    private int cachedInfernalShalePrice = 0;
+    private int cachedCrushedShalePrice = 0;
     private long lastFetchTime = 0;
     private static final long CACHE_DURATION = 180000; // 3 minutes in milliseconds
     
@@ -19,28 +21,28 @@ public class PriceFetcher {
         long currentTime = System.currentTimeMillis();
         
         // Return cached price if it's still valid
-        if (cachedPrice > 0 && (currentTime - lastFetchTime) < CACHE_DURATION) {
-            return cachedPrice;
+        if (cachedInfernalShalePrice > 0 && (currentTime - lastFetchTime) < CACHE_DURATION) {
+            return cachedInfernalShalePrice;
         }
         
         try {
             // Fetch new price
             int newPrice = fetchPriceFromAPI();
             if (newPrice > 0) {
-                cachedPrice = newPrice;
+                cachedInfernalShalePrice = newPrice;
                 lastFetchTime = currentTime;
                 System.out.println("Updated Infernal Shale price: " + newPrice + " gp");
             }
         } catch (Exception e) {
             System.out.println("Failed to fetch price: " + e.getMessage());
             // If fetch fails and we have no cached price, use fallback
-            if (cachedPrice == 0) {
-                cachedPrice = 100; // Fallback price
-                System.out.println("Using fallback price: " + cachedPrice + " gp");
+            if (cachedInfernalShalePrice == 0) {
+                cachedInfernalShalePrice = 100; // Fallback price
+                System.out.println("Using fallback price: " + cachedInfernalShalePrice + " gp");
             }
         }
         
-        return cachedPrice;
+        return cachedInfernalShalePrice;
     }
     
     private int fetchPriceFromAPI() throws Exception {

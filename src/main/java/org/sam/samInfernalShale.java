@@ -3,6 +3,7 @@ import com.google.common.eventbus.Subscribe;
 import org.powbot.api.Color;
 import org.powbot.api.event.InventoryChangeEvent;
 import org.powbot.api.event.MessageEvent;
+import org.powbot.api.rt4.Inventory;
 import org.powbot.api.rt4.walking.model.Skill;
 import org.powbot.api.script.*;
 import org.powbot.api.script.paint.PaintBuilder;
@@ -66,6 +67,18 @@ public class samInfernalShale extends AbstractScript {
             vars.consecutiveFailures = 0; // Reset failure counter on success
             System.out.println("Rock mined! Total: " + vars.rocksMined + ", Shale gained: " + event.getQuantityChange());
         }
+        
+        // Track crushed infernal shale changes
+        if (event.getItemId() == Constants.CRUSHED_INFERNAL_SHALE) {
+            if (event.getQuantityChange() > 0) {
+                vars.crushedShaleObtained += event.getQuantityChange();
+                System.out.println("Crushed shale obtained! Total: " + vars.crushedShaleObtained + ", Amount gained: " + event.getQuantityChange());
+            } else if (event.getQuantityChange() < 0) {
+                // Track when crushed shale is dropped/deposited (negative change)
+                vars.crushedShaleObtained += Math.abs(event.getQuantityChange());
+                System.out.println("Crushed shale dropped/deposited! Total tracked: " + vars.crushedShaleObtained + ", Amount lost: " + Math.abs(event.getQuantityChange()));
+            }
+        }
     }
 
     @Subscribe
@@ -109,11 +122,16 @@ public class samInfernalShale extends AbstractScript {
         
         // Initialize price fetcher with initial price lookup
         System.out.println("Fetching Infernal Shale price from RuneScape Wiki...");
-        priceFetcher.getInfernalShalePrice();
+        //priceFetcher.getInfernalShalePrice();
+        
+        // Set initial crushed shale count
+        vars.initialCrushedShaleCount = Inventory.stream().id(Constants.CRUSHED_INFERNAL_SHALE).first().getStack();
+        System.out.println("Initial crushed shale count: " + vars.initialCrushedShaleCount);
+        int price = priceFetcher.getInfernalShalePrice();
 
         addPaint(
                 PaintBuilder.newBuilder()
-                        .minHeight(190)
+                        .minHeight(180)
                         .minWidth(450)
                         .backgroundColor(Color.argb(175, 0, 0, 0))
                         .withTextSize(14F)
@@ -125,19 +143,28 @@ public class samInfernalShale extends AbstractScript {
                             }
                             return "Mining: " + vars.rocksMined + "/0 (0.0%)";
                         })
+//                        .addString(() -> {
+//                            // Calculate current crushed shale in inventory minus what was there at start
+//                            int currentCrushedShale = Inventory.stream().id(Constants.CRUSHED_INFERNAL_SHALE).first().getStack();
+//                            int netCrushedShale = currentCrushedShale - vars.initialCrushedShaleCount + vars.crushedShaleObtained;
+//                            int crushedShaleValue = netCrushedShale * price;
+//                            return "Crushed Shale: " + netCrushedShale + " (" + priceFetcher.formatPrice(crushedShaleValue) + " gp)";
+//                        })
                         .addString(() -> "Timing Failures: " + vars.consecutiveFailures)
                         .addString(() -> {
-                            int price = priceFetcher.getInfernalShalePrice();
-                            int totalProfit = vars.rocksMined * price;
+                            // Calculate net crushed shale gained (current minus initial + any dropped/deposited)
+//                            int currentCrushedShale = Inventory.stream().id(Constants.CRUSHED_INFERNAL_SHALE).first().getStack();
+//                            int netCrushedShale = currentCrushedShale - vars.initialCrushedShaleCount;
+
+                            int totalProfit = vars.crushedShaleObtained * price;
                             return "GE Profit: " + priceFetcher.formatPrice(totalProfit) + " gp (" + price + " ea)";
                         })
-                        .addString(() -> {
-                            int price = priceFetcher.getInfernalShalePrice();
-                            int failedAttempts = vars.miningAttempts - vars.rocksMined;
-                            int totalFailures = vars.totalMissedRocks + failedAttempts;
-                            int totalLoss = totalFailures * price;
-                            return "Total Loss: " + priceFetcher.formatPrice(totalLoss) + " gp (" + totalFailures + " failed)";
-                        })
+//                        .addString(() -> {
+//                            int failedAttempts = vars.miningAttempts - vars.rocksMined;
+//                            int totalFailures = vars.totalMissedRocks + failedAttempts;
+//                            int totalLoss = totalFailures * price;
+//                            return "Total Loss: " + priceFetcher.formatPrice(totalLoss) + " gp (" + totalFailures + " failed)";
+//                        })
                         .trackSkill(Skill.Mining)
                         .build()
         );

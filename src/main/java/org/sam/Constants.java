@@ -22,6 +22,7 @@ public class Constants {
     public static final Integer INFERNAL_SHALE_DEPOSIT_ID = 56362;
     public static final Integer INFERNAL_SHALE_DEPOSIT_DEPLEATED_ID = 56363;
     public static final Integer INFERNAL_SHALE = 30846;
+    public static final Integer CRUSHED_INFERNAL_SHALE = 30848;
     public static final Integer GEM_BAG_ID = 12020;
     public static final Integer WET_CLOTH_ID = 30808;
 
