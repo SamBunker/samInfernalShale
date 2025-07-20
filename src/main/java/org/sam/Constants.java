@@ -2,8 +2,6 @@ package org.sam;
 import org.powbot.api.Area;
 import org.powbot.api.Tile;
 
-import java.util.ArrayList;
-
 public class Constants {
 
     public Constants() {
@@ -27,6 +25,4 @@ public class Constants {
     public static final Integer GEM_BAG_ID = 12020;
     public static final Integer WET_CLOTH_ID = 30808;
 
-    //ArrayLists
-    public final ArrayList<Task> TASK_LIST = new ArrayList<Task>();
 }

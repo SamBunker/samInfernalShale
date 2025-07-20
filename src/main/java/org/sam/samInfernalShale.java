@@ -1,8 +1,6 @@
 package org.sam;
 import com.google.common.eventbus.Subscribe;
 import org.powbot.api.Color;
-import org.powbot.api.event.GameObjectActionEvent;
-import org.powbot.api.event.InventoryChangeEvent;
 import org.powbot.api.event.MessageEvent;
 import org.powbot.api.event.SkillExpGainedEvent;
 import org.powbot.api.rt4.Skills;
@@ -11,7 +9,6 @@ import org.powbot.api.script.*;
 import org.powbot.api.script.paint.PaintBuilder;
 import org.powbot.mobile.script.ScriptManager;
 import org.powbot.mobile.service.ScriptUploader;
-import org.sam.Tasks.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,6 +42,7 @@ public class samInfernalShale extends AbstractScript {
     public GemBagManager gemBagManager = new GemBagManager();
     Constants constants = new Constants();
     Variables vars = new Variables();
+    TaskManager taskManager;
 
     @ValueChanged(keyName = "Mining Method")
     public void methodChanged(String method) {
@@ -106,38 +104,7 @@ public class samInfernalShale extends AbstractScript {
                 getOption("Mining Method")
         );
 
-        constants.TASK_LIST.add(new Running(this));
-        constants.TASK_LIST.add(new SpecialAttack(this));
-        constants.TASK_LIST.add(new GoToRocks(this, config));
-
-        if (Functions.getFirstInventoryItemByID(Constants.GEM_BAG_ID).valid()) {
-            Functions.getFirstInventoryItemByID(Constants.GEM_BAG_ID).interact("Check");
-            constants.TASK_LIST.add(new FillGemBag(this, Functions.getGemBag().valid()));
-        } else {
-            constants.TASK_LIST.add(new DropGems(this));
-        }
-
-        switch (config.getMiningMethod()) {
-            case "3T Mining":
-                constants.TASK_LIST.add(new TakeCloth(this));
-                constants.TASK_LIST.add(new ThreeTick(this, config));
-                break;
-            case "Mining":
-                constants.TASK_LIST.add(new TakeCloth(this));
-                constants.TASK_LIST.add(new Mining(this, config));
-                constants.TASK_LIST.add(new Crush(this));
-                break;
-            case "AFK Mining":
-                constants.TASK_LIST.add(new AfkMine(this));
-                constants.TASK_LIST.add(new Crush(this));
-                break;
-
-            default:
-                constants.TASK_LIST.add(new AfkMine(this));
-                constants.TASK_LIST.add(new Crush(this));
-                System.out.println("Unknown mining mode: " + config.getMiningMethod());
-                break;
-        }
+        taskManager = new TaskManager(this, config);
 
         addPaint(
                 PaintBuilder.newBuilder()
@@ -145,7 +112,7 @@ public class samInfernalShale extends AbstractScript {
                         .minWidth(450)
                         .backgroundColor(Color.argb(175, 0, 0, 0))
                         .withTextSize(14F)
-                        .addString(() -> "Task: " + vars.currentTask)
+                        .addString(() -> "Task: " + taskManager.getCurrentTaskName())
                         .addString(() -> "Rocks Mined: " + vars.rocksMined)
                         .trackSkill(Skill.Mining)
                         .build()
@@ -155,25 +122,20 @@ public class samInfernalShale extends AbstractScript {
 
     @Override
     public void poll() {
-        for (Task task : constants.TASK_LIST) {
-            if (task.activate()) {
-                vars.currentTask = task.name;
-                task.execute();
-
-                if (config.getMiningMethod().equals("3T Mining") || config.getMiningMethod().equals("Mining")) {
-                    if (config.getSelectedRocks() == null) {
-                        ScriptManager.INSTANCE.stop();
-                        break;
-                    }
-                }
-                if (!Functions.hasItem("pickaxe")) {
-                    ScriptManager.INSTANCE.stop();
-                    break;
-                }
-                if (ScriptManager.INSTANCE.isStopping()) {
-                    break;
-                }
+        taskManager.executeTask();
+        
+        if (config.getMiningMethod().equals("3T Mining") || config.getMiningMethod().equals("Mining")) {
+            if (config.getSelectedRocks() == null) {
+                ScriptManager.INSTANCE.stop();
+                return;
             }
+        }
+        if (!Functions.hasItem("pickaxe")) {
+            ScriptManager.INSTANCE.stop();
+            return;
+        }
+        if (ScriptManager.INSTANCE.isStopping()) {
+            return;
         }
     }
 }

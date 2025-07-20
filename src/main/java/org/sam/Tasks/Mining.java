@@ -46,7 +46,7 @@ public class Mining extends Task {
 
         if (!Functions.getFirstInventoryItemByID(Constants.WET_CLOTH_ID).interact("Wipe")) return;
 
-        Condition.sleep(Random.nextInt(90, 104));
+        Condition.sleep(Random.nextInt(100, 112));
         if (Functions.getTargetRock(event).interact("Mine")) {
             vars.awaitingShale = true;
             //vars.rocksMined++;

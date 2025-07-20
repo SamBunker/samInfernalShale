@@ -47,7 +47,7 @@ public class ThreeTick extends Task {
 
         if (!Functions.getFirstInventoryItemByID(Constants.WET_CLOTH_ID).interact("Wipe")) return;
 
-        Condition.sleep(Random.nextInt(96, 101));
+        Condition.sleep(Random.nextInt(260, 280));
 
         if (Functions.getTargetRock(event).interact("Mine")) {
             vars.awaitingShale = true;
