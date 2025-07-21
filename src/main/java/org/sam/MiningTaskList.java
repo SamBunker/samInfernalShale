@@ -63,4 +63,9 @@ public class MiningTaskList implements TaskListInterface {
         }
         return null;
     }
+    
+    @Override
+    public List<Task> getTasks() {
+        return tasks;
+    }
 }

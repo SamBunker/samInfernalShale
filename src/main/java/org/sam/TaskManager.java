@@ -11,6 +11,7 @@ public class TaskManager {
     
     private List<TaskListInterface> taskLists;
     private samInfernalShale main;
+    private String lastExecutedTaskName = "Idle";
     
     public TaskManager(samInfernalShale main, MiningConfig config) {
         this.main = main;
@@ -29,20 +30,19 @@ public class TaskManager {
     
     public void executeTask() {
         for (TaskListInterface taskList : taskLists) {
-            if (taskList.executeNextTask()) {
-                return;
+            for (Task task : taskList.getTasks()) {
+                if (task.activate()) {
+                    task.execute();
+                    lastExecutedTaskName = task.name;
+                    return;
+                }
             }
         }
+        lastExecutedTaskName = "Idle";
     }
     
     public String getCurrentTaskName() {
-        for (TaskListInterface taskList : taskLists) {
-            String taskName = taskList.getCurrentTaskName();
-            if (taskName != null) {
-                return taskName;
-            }
-        }
-        return "Idle";
+        return lastExecutedTaskName;
     }
     
     public MiningTaskList getMiningTasks() {

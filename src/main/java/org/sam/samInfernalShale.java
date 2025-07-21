@@ -40,7 +40,7 @@ public class samInfernalShale extends AbstractScript {
 
     public MiningConfig config;
     public GemBagManager gemBagManager = new GemBagManager();
-    Constants constants = new Constants();
+    //Constants constants = new Constants();
     public Variables vars = new Variables();
     TaskManager taskManager;
     PriceFetcher priceFetcher = new PriceFetcher();

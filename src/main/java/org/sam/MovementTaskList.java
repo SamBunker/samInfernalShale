@@ -55,4 +55,9 @@ public class MovementTaskList implements TaskListInterface {
         }
         return null;
     }
+    
+    @Override
+    public List<Task> getTasks() {
+        return tasks;
+    }
 }

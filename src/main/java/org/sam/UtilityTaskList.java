@@ -55,4 +55,9 @@ public class UtilityTaskList implements TaskListInterface {
         }
         return null;
     }
+    
+    @Override
+    public List<Task> getTasks() {
+        return tasks;
+    }
 }

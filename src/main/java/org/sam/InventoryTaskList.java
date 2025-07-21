@@ -64,4 +64,9 @@ public class InventoryTaskList implements TaskListInterface {
         }
         return null;
     }
+    
+    @Override
+    public List<Task> getTasks() {
+        return tasks;
+    }
 }
