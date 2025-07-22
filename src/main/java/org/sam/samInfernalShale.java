@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
         name = "Sam Infernal Shale",
         description = "3T, Tick Manipulation, Regular Mining, AFK Mining",
         author = "Sam",
-        version = "1.2",
+        version = "1.2.1",
         category = ScriptCategory.Mining
 )
 public class samInfernalShale extends AbstractScript {
@@ -129,45 +129,36 @@ public class samInfernalShale extends AbstractScript {
         System.out.println("Initial crushed shale count: " + vars.initialCrushedShaleCount);
         int price = priceFetcher.getInfernalShalePrice();
 
-        addPaint(
-                PaintBuilder.newBuilder()
-                        .minHeight(180)
-                        .minWidth(450)
-                        .backgroundColor(Color.argb(175, 0, 0, 0))
-                        .withTextSize(14F)
-                        .addString(() -> "Task: " + taskManager.getCurrentTaskName())
-                        .addString(() -> {
-                            if (vars.miningAttempts > 0) {
-                                double successRate = (double) vars.rocksMined / vars.miningAttempts * 100;
-                                return "Mining: " + vars.rocksMined + "/" + vars.miningAttempts + " (" + String.format("%.1f", successRate) + "%)";
-                            }
-                            return "Mining: " + vars.rocksMined + "/0 (0.0%)";
-                        })
-//                        .addString(() -> {
-//                            // Calculate current crushed shale in inventory minus what was there at start
-//                            int currentCrushedShale = Inventory.stream().id(Constants.CRUSHED_INFERNAL_SHALE).first().getStack();
-//                            int netCrushedShale = currentCrushedShale - vars.initialCrushedShaleCount + vars.crushedShaleObtained;
-//                            int crushedShaleValue = netCrushedShale * price;
-//                            return "Crushed Shale: " + netCrushedShale + " (" + priceFetcher.formatPrice(crushedShaleValue) + " gp)";
-//                        })
-                        .addString(() -> "Timing Failures: " + vars.consecutiveFailures)
-                        .addString(() -> {
-                            // Calculate net crushed shale gained (current minus initial + any dropped/deposited)
-//                            int currentCrushedShale = Inventory.stream().id(Constants.CRUSHED_INFERNAL_SHALE).first().getStack();
-//                            int netCrushedShale = currentCrushedShale - vars.initialCrushedShaleCount;
-
-                            int totalProfit = vars.crushedShaleObtained * price;
-                            return "GE Profit: " + priceFetcher.formatPrice(totalProfit) + " gp (" + price + " ea)";
-                        })
-//                        .addString(() -> {
-//                            int failedAttempts = vars.miningAttempts - vars.rocksMined;
-//                            int totalFailures = vars.totalMissedRocks + failedAttempts;
-//                            int totalLoss = totalFailures * price;
-//                            return "Total Loss: " + priceFetcher.formatPrice(totalLoss) + " gp (" + totalFailures + " failed)";
-//                        })
-                        .trackSkill(Skill.Mining)
-                        .build()
-        );
+        PaintBuilder paintBuilder = PaintBuilder.newBuilder()
+                .minHeight(180)
+                .minWidth(450)
+                .backgroundColor(Color.argb(175, 0, 0, 0))
+                .withTextSize(14F)
+                .addString(() -> "Task: " + taskManager.getCurrentTaskName());
+        
+        // Only show Mining stats if not using AFK Mining
+        if (!config.getMiningMethod().equals("AFK Mining")) {
+            paintBuilder.addString(() -> {
+                if (vars.miningAttempts > 0) {
+                    double successRate = (double) vars.rocksMined / vars.miningAttempts * 100;
+                    return "Mining: " + vars.rocksMined + "/" + vars.miningAttempts + " (" + String.format("%.1f", successRate) + "%)";
+                }
+                return "Mining: " + vars.rocksMined + "/0 (0.0%)";
+            });
+        }
+        
+        // Only show Timing Failures if not using AFK Mining
+        if (!config.getMiningMethod().equals("AFK Mining")) {
+            paintBuilder.addString(() -> "Timing Failures: " + vars.consecutiveFailures);
+        }
+        
+        paintBuilder.addString(() -> {
+            int totalProfit = vars.crushedShaleObtained * price;
+            return "GE Profit: " + priceFetcher.formatPrice(totalProfit) + " gp (" + price + " ea)";
+        })
+                .trackSkill(Skill.Mining);
+        
+        addPaint(paintBuilder.build());
         vars.currentTask = "Idle";
     }
 
