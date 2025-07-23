@@ -130,6 +130,9 @@ public class samInfernalShale extends AbstractScript {
 
         taskManager = new TaskManager(this, config);
         
+        // Reset 3T mining initialization state on script start
+        resetThreeTMiningState();
+        
         // Initialize price fetcher with initial price lookup
         System.out.println("Fetching Infernal Shale price from RuneScape Wiki...");
         //priceFetcher.getInfernalShalePrice();
@@ -213,5 +216,13 @@ public class samInfernalShale extends AbstractScript {
     public void trackSuccessfulMining() {
         vars.recentTimingFailures = Math.max(0, vars.recentTimingFailures - 1); // Gradually reduce failure count
         vars.lastSuccessfulClothDelay = vars.averageClothWipeTime; // Remember successful timing
+    }
+
+    private void resetThreeTMiningState() {
+        // Reset all 3T mining initialization state on script start/restart
+        vars.threeTMiningInitialized = false;
+        vars.initialPositioningComplete = false;
+        vars.runStateDisabledForMining = false;
+        System.out.println("3T mining initialization state reset");
     }
 }

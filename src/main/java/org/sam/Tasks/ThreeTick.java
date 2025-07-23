@@ -33,19 +33,117 @@ public class ThreeTick extends Task {
 
     @Override
     public void execute() {
+        // Initialize 3T mining session if needed
+        if (!main.vars.threeTMiningInitialized) {
+            if (!initialize3TMiningSession()) {
+                return; // Initialization not complete, try again next tick
+            }
+        }
+        
+        // Proceed with normal 3T mining cycle
+        execute3TMiningCycle();
+    }
+    
+    private boolean initialize3TMiningSession() {
+        System.out.println("Initializing 3T mining session...");
+        
+        // Step 1: Validate rock selection and get target
+        GameObjectActionEvent event = config.getFirstSelectedRock();
+        if (!event.getName().contains(Constants.ORE_NAME)) {
+            System.out.println("Invalid rock selection during initialization");
+            return false;
+        }
+
+        Functions.getTargetRock(event);
+        if (!Functions.getTargetRock(event).valid()) {
+            System.out.println("Target rock not valid during initialization");
+            return false;
+        }
+        
+        // Step 2: Enable run for efficient movement to first rock
+        if (!main.vars.initialPositioningComplete) {
+            return performInitialPositioning(event);
+        }
+        
+        // Step 3: Disable run for precise 3T mining
+        if (main.vars.initialPositioningComplete && !main.vars.runStateDisabledForMining) {
+            return disableRunForMining();
+        }
+        
+        // Step 4: Mark initialization complete
+        main.vars.threeTMiningInitialized = true;
+        System.out.println("3T mining session initialized successfully!");
+        return true;
+    }
+    
+    private boolean performInitialPositioning(GameObjectActionEvent event) {
+        System.out.println("Performing initial positioning to first rock...");
+        
+        // Enable run for efficient movement
+        if (!Movement.running()) {
+            Movement.running(true);
+            System.out.println("Run enabled for initial positioning");
+        }
+        
+        TileRadius radius = new TileRadius(Functions.getTargetRock(event).tile(), 5);
+        double currentDistance = radius.getTile().distanceTo(Players.local().tile());
+        
+        // Move to optimal position (within 2 tiles for precise 3T mining)
+        if (currentDistance > 2.0) {
+            event.getTile().matrix().interact("Walk here");
+            System.out.println("Moving to first rock, current distance: " + String.format("%.1f", currentDistance));
+            
+            // Wait for movement completion with timeout
+            boolean positionReached = Condition.wait(() -> {
+                double newDistance = new TileRadius(Functions.getTargetRock(event).tile(), 5)
+                    .getTile().distanceTo(Players.local().tile());
+                return newDistance <= 2.0;
+            }, 50, 100); // 5 second timeout
+            
+            if (!positionReached) {
+                System.out.println("Failed to reach optimal position, trying again...");
+                return false; // Try again next tick
+            }
+        }
+        
+        main.vars.initialPositioningComplete = true;
+        System.out.println("Initial positioning complete! Distance: " + 
+            String.format("%.1f", radius.getTile().distanceTo(Players.local().tile())));
+            
+        return false; // Continue initialization next tick (disable run step)
+    }
+    
+    private boolean disableRunForMining() {
+        System.out.println("Disabling run for precise 3T mining...");
+        
+        if (Movement.running()) {
+            Movement.running(false);
+            System.out.println("Run disabled for 3T mining precision");
+            
+            // Small delay to ensure run state change is registered
+            Condition.sleep(50);
+        }
+        
+        main.vars.runStateDisabledForMining = true;
+        return false; // Complete initialization next tick
+    }
+    
+    private void execute3TMiningCycle() {
         GameObjectActionEvent event = config.getFirstSelectedRock();
         if (!event.getName().contains(Constants.ORE_NAME)) return;
 
         Functions.getTargetRock(event);
         if (!Functions.getTargetRock(event).valid()) return;
 
+        // Fine positioning check (should already be positioned from initialization)
         TileRadius radius = new TileRadius(Functions.getTargetRock(event).tile(), 5);
-        if (radius.getTile().distanceTo(Players.local().tile()) > 4) {
+        if (radius.getTile().distanceTo(Players.local().tile()) > 3) {
+            System.out.println("Distance too great during mining cycle, re-positioning...");
             event.getTile().matrix().interact("Walk here");
-            Condition.wait(() -> radius.getTile().distanceTo(Players.local().tile()) < 1, 37, 20);
+            Condition.wait(() -> radius.getTile().distanceTo(Players.local().tile()) < 2, 25, 40);
         }
 
-        // Improved wet cloth timing with adaptive delays
+        // Begin the cloth wipe cycle (timing-critical section)
         if (!Functions.getFirstInventoryItemByID(Constants.WET_CLOTH_ID).interact("Wipe")) return;
 
         long startTime = System.currentTimeMillis();

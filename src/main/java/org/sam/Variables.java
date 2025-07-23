@@ -32,6 +32,11 @@ public class Variables {
     public int chiselingAttempts = 0;
     public int chiselingSuccesses = 0;
 
+    // 3T Mining Initialization State Tracking
+    public boolean threeTMiningInitialized = false; // Track if 3T mining session is properly initialized
+    public boolean initialPositioningComplete = false; // Track if initial rock positioning is done
+    public boolean runStateDisabledForMining = false; // Track if run was disabled for 3T mining
+
     //Strings
     public String currentTask = "Idle";
 
