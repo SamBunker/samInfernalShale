@@ -65,6 +65,7 @@ public class samInfernalShale extends AbstractScript {
         if (event.getItemId() == Constants.INFERNAL_SHALE && event.getQuantityChange() > 0) {
             vars.rocksMined += event.getQuantityChange();
             vars.consecutiveFailures = 0; // Reset failure counter on success
+            trackSuccessfulMining(); // Track successful mining for timing adjustment
             System.out.println("Rock mined! Total: " + vars.rocksMined + ", Shale gained: " + event.getQuantityChange());
         }
         
@@ -92,12 +93,21 @@ public class samInfernalShale extends AbstractScript {
         // Detect timing failure message - only count as timing failure, not interaction failure
         if (msg.contains("you can't swing a pickaxe whilst wiping") || msg.contains("can't swing") || msg.contains("whilst wiping")) {
             vars.consecutiveFailures++;
+            vars.recentTimingFailures++; // Track recent failures separately
             vars.totalMissedRocks++;
+            
             // Subtract 1 from mining attempts since this wasn't a real mining attempt
             if (vars.miningAttempts > 0) {
                 vars.miningAttempts--;
             }
-            System.out.println("Mining timing failure detected! Consecutive: " + vars.consecutiveFailures + ", Total missed: " + vars.totalMissedRocks);
+            
+            // Immediate timing adjustment after single failure
+            if (vars.recentTimingFailures == 1) {
+                System.out.println("Single timing failure detected - adjusting timing");
+                adjustTimingAfterFailure();
+            }
+            
+            System.out.println("Mining timing failure detected! Consecutive: " + vars.consecutiveFailures + ", Recent: " + vars.recentTimingFailures + ", Total missed: " + vars.totalMissedRocks);
         }
 
         Pattern pattern = Pattern.compile("(sapphires|emeralds|rubies|diamonds|dragonstones):\\s*(\\d+)", Pattern.CASE_INSENSITIVE);
@@ -179,5 +189,18 @@ public class samInfernalShale extends AbstractScript {
         if (ScriptManager.INSTANCE.isStopping()) {
             return;
         }
+    }
+
+    private void adjustTimingAfterFailure() {
+        // Increase timing slightly for next attempt
+        vars.averageClothWipeTime += 15; // Add 15ms to base timing
+        
+        // Ensure we don't exceed maximum
+        vars.averageClothWipeTime = Math.min(vars.averageClothWipeTime, Constants.WET_CLOTH_MAX_WAIT);
+    }
+
+    public void trackSuccessfulMining() {
+        vars.recentTimingFailures = Math.max(0, vars.recentTimingFailures - 1); // Gradually reduce failure count
+        vars.lastSuccessfulClothDelay = vars.averageClothWipeTime; // Remember successful timing
     }
 }

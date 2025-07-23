@@ -26,4 +26,11 @@ public class Constants {
     public static final Integer GEM_BAG_ID = 12020;
     public static final Integer WET_CLOTH_ID = 30808;
 
+    // 3T Mining Timing Constants
+    public static final int WET_CLOTH_MIN_WAIT = 180; // Minimum wait after wiping
+    public static final int WET_CLOTH_MAX_WAIT = 320; // Maximum wait after wiping  
+    public static final int WET_CLOTH_BASE_DELAY = 230; // Base delay (current: 280ms fixed)
+    public static final int TIMING_ADJUSTMENT_THRESHOLD = 2; // Failures before adjustment
+    public static final int PING_COMPENSATION_MULTIPLIER = 15; // Ping * this value added to delays
+
 }

@@ -45,18 +45,30 @@ public class ThreeTick extends Task {
             Condition.wait(() -> radius.getTile().distanceTo(Players.local().tile()) < 1, 37, 20);
         }
 
+        // Improved wet cloth timing with adaptive delays
         if (!Functions.getFirstInventoryItemByID(Constants.WET_CLOTH_ID).interact("Wipe")) return;
 
         long startTime = System.currentTimeMillis();
         int currentAnimation = Players.local().animation();
 
+        // Calculate adaptive timing based on recent performance
+        long adaptiveDelay = calculateAdaptiveDelay();
+        long maxWait = adaptiveDelay + 80; // Allow some variance
+
         Condition.wait(() -> {
             long elapsed = System.currentTimeMillis() - startTime;
             boolean animationChanged = Players.local().animation() != currentAnimation;
-            return (elapsed >= 200 && animationChanged) || elapsed >= 280;
-        }, 20, 50);
+            boolean validState = Players.local().animation() != -1; // Ensure animation is valid
+            
+            return (elapsed >= adaptiveDelay && animationChanged && validState) || elapsed >= maxWait;
+        }, 10, (int)(maxWait / 10)); // Dynamic iteration limit
 
-        Condition.sleep(Random.nextInt(50, 70));
+        // Track timing for adaptive learning
+        long clothCompleteTime = System.currentTimeMillis() - startTime;
+        trackClothTiming(clothCompleteTime);
+
+        // Precise delay instead of random 50-70ms
+        Condition.sleep(calculateOptimalPostClothDelay());
 
         if (Functions.getTargetRock(event).interact("Mine")) {
             main.vars.miningAttempts++;
@@ -96,5 +108,57 @@ public class ThreeTick extends Task {
             }
         }
         Condition.sleep(Random.nextInt(30, 40));
+    }
+
+    private long calculateAdaptiveDelay() {
+        // Start with base delay
+        long baseDelay = Constants.WET_CLOTH_BASE_DELAY;
+        
+        // Adjust based on recent failures
+        if (main.vars.recentTimingFailures >= 1) {
+            baseDelay += (main.vars.recentTimingFailures * 25); // Add 25ms per recent failure
+        }
+        
+        // Adjust based on average successful timing
+        if (main.vars.averageClothWipeTime > 0) {
+            baseDelay = (baseDelay + main.vars.averageClothWipeTime) / 2; // Blend with historical data
+        }
+        
+        // Apply ping compensation
+        baseDelay += main.vars.currentPingCompensation;
+        
+        // Keep within bounds
+        return Math.max(Constants.WET_CLOTH_MIN_WAIT, 
+               Math.min(Constants.WET_CLOTH_MAX_WAIT, baseDelay));
+    }
+
+    private int calculateOptimalPostClothDelay() {
+        // Instead of random 50-70ms, use calculated delay based on timing success
+        int baseDelay = 45; // Slightly lower than current minimum
+        
+        // Adjust based on recent performance
+        if (main.vars.recentTimingFailures > 0) {
+            baseDelay += (main.vars.recentTimingFailures * 8); // Add time if struggling
+        }
+        
+        // Add small randomization to avoid detection (±10ms)
+        return baseDelay + Random.nextInt(-10, 10);
+    }
+
+    private void trackClothTiming(long timing) {
+        // Track successful timing for adaptive learning
+        main.vars.recentClothTimings.add(timing);
+        
+        // Keep only last 10 timings
+        if (main.vars.recentClothTimings.size() > 10) {
+            main.vars.recentClothTimings.remove(0);
+        }
+        
+        // Update average
+        if (!main.vars.recentClothTimings.isEmpty()) {
+            main.vars.averageClothWipeTime = main.vars.recentClothTimings.stream()
+                .mapToLong(Long::longValue)
+                .sum() / main.vars.recentClothTimings.size();
+        }
     }
 }
