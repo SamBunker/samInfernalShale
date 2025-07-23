@@ -8,11 +8,13 @@ public class MiningConfig {
     private final List<GameObjectActionEvent> selectedRocks;
     private String miningMethod;
     private String hammerType;
+    private String discordWebhookUrl;
 
-    public MiningConfig(List selectedRocks, String miningMethod, String hammerType) {
+    public MiningConfig(List selectedRocks, String miningMethod, String hammerType, String discordWebhookUrl) {
         this.selectedRocks = selectedRocks;
         this.miningMethod = miningMethod;
         this.hammerType = hammerType;
+        this.discordWebhookUrl = discordWebhookUrl;
     }
 
     public List<GameObjectActionEvent> getSelectedRocks() {
@@ -25,6 +27,10 @@ public class MiningConfig {
 
     public String getHammerType() {
         return hammerType;
+    }
+
+    public String getDiscordWebhookUrl() {
+        return discordWebhookUrl;
     }
 
     public GameObjectActionEvent getFirstSelectedRock() {

@@ -4,6 +4,7 @@ import org.powbot.api.Color;
 import org.powbot.api.event.InventoryChangeEvent;
 import org.powbot.api.event.MessageEvent;
 import org.powbot.api.rt4.Inventory;
+import org.powbot.api.rt4.Players;
 import org.powbot.api.rt4.walking.model.Skill;
 import org.powbot.api.script.*;
 import org.powbot.api.script.paint.PaintBuilder;
@@ -29,6 +30,11 @@ import java.util.regex.Pattern;
                 description = "Select your preferred hammer type",
                 optionType = OptionType.STRING,
                 allowedValues = {"Regular Hammer", "Imcando Hammer (off-hand)"}
+        ),
+        @ScriptConfiguration(
+                name = "Discord Webhook URL",
+                description = "Discord webhook URL for notifications (optional)",
+                optionType = OptionType.STRING
         )
 })
 
@@ -50,6 +56,7 @@ public class samInfernalShale extends AbstractScript {
     public Variables vars = new Variables();
     TaskManager taskManager;
     PriceFetcher priceFetcher = new PriceFetcher();
+    DiscordWebhook discordWebhook;
 
     @ValueChanged(keyName = "Mining Method")
     public void methodChanged(String method) {
@@ -146,8 +153,12 @@ public class samInfernalShale extends AbstractScript {
         config = new MiningConfig(
                 getOption("SelectedRocks"),
                 getOption("Mining Method"),
-                getOption("Hammer Type")
+                getOption("Hammer Type"),
+                getOption("Discord Webhook URL")
         );
+        
+        // Initialize Discord webhook
+        discordWebhook = new DiscordWebhook(config.getDiscordWebhookUrl());
 
         taskManager = new TaskManager(this, config);
         
@@ -165,6 +176,10 @@ public class samInfernalShale extends AbstractScript {
         vars.initialCrushedShaleCount = Inventory.stream().id(Constants.CRUSHED_INFERNAL_SHALE).first().getStack();
         System.out.println("Initial crushed shale count: " + vars.initialCrushedShaleCount);
         int price = priceFetcher.getInfernalShalePrice();
+        
+        // Send Discord start message
+        String playerName = Players.local().name() != null ? Players.local().name() : "Unknown";
+        discordWebhook.sendStartMessage(playerName, price);
 
         PaintBuilder paintBuilder = PaintBuilder.newBuilder()
                 .minHeight(180)
@@ -245,6 +260,30 @@ public class samInfernalShale extends AbstractScript {
         }
         if (ScriptManager.INSTANCE.isStopping()) {
             return;
+        }
+    }
+    
+    @Override
+    public void onStop() {
+        // Send Discord stop message with performance metrics
+        if (discordWebhook != null) {
+            long totalRuntime = System.currentTimeMillis() - vars.scriptStartTime;
+            int totalProfit = vars.crushedShaleObtained * priceFetcher.getInfernalShalePrice();
+            
+            // Calculate average GP per hour
+            double runtimeHours = totalRuntime / (1000.0 * 60.0 * 60.0);
+            int averageGpPerHour = runtimeHours > 0 ? (int) Math.round(totalProfit / runtimeHours) : 0;
+            
+            // Get PowerBot username (fallback to player name if not available)
+            String powbotUsername = Players.local().name() != null ? Players.local().name() : "Unknown";
+            
+            discordWebhook.sendStopMessage(
+                averageGpPerHour,
+                totalProfit,
+                vars.crushedShaleObtained,
+                totalRuntime,
+                powbotUsername
+            );
         }
     }
 

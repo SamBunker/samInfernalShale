@@ -280,6 +280,7 @@ public class ThreeTick extends Task {
         System.out.println("Chiseling operation " + operationNumber + "/" + totalOperations + " starting while walking...");
         
         if (Functions.getHammer(main).useOn(shale)) {
+
             // Wait for chiseling success with a reasonable timeout
             boolean success = Condition.wait(() -> {
                 long currentCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();

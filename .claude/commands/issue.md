@@ -1,4 +1,7 @@
 
+'
+
+'
 
 # GitHub Issue Processor
 
@@ -14,7 +17,7 @@ Process GitHub issues through a complete development workflow with AI-assisted p
 
 This command processes a GitHub issue through the complete development workflow:
 
-1. **📥 Fetch Issue Details** - Retrieves issue information from GitHub
+1. **📥 Fetch Issue Details** - Retrieves issue information from GitHub via URL
 2. **🧠 AI Planning Phase** - Uses Claude for scratchpad-style breakdown  
 3. **🌿 Create Feature Branch** - Sets up isolated development branch
 4. **⚡ Implementation Guidance** - Provides AI-driven implementation steps
@@ -54,28 +57,18 @@ This command processes a GitHub issue through the complete development workflow:
 
 The following tools must be installed and configured:
 
-- **GitHub CLI (`gh`)** - For GitHub API interactions
-  ```bash
-  # Install and authenticate
-  brew install gh        # macOS
-  gh auth login         # Authenticate with GitHub
-  ```
-
-- **jq** - For JSON parsing
-  ```bash
-  brew install jq       # macOS
-  ```
-
-- **Claude Code** - Must be installed and working
+- **Claude Code** - Must be installed and working with WebFetch capability
 
 - **Git Repository** - Must be a GitHub-hosted repository with origin remote
+
+- **Internet Connection** - Required for fetching issue data from GitHub URLs
 
 ## Workflow Details
 
 ### Step 1: Issue Analysis
 - Detects current branch context for branch-specific issues
-- Fetches complete issue details including title, body, labels, author, and state
-- Validates issue exists and is accessible in current branch context
+- Fetches complete issue details including title, body, labels, author, and state via GitHub URL
+- Validates issue exists and is accessible through public GitHub interface
 - Warns if issue is not in OPEN state but allows continuation
 
 ### Step 2: AI Planning Session
@@ -132,9 +125,9 @@ Provides detailed implementation guidance including:
   - Automatic issue closing reference
 
 ### Step 8: Issue Closure
-- Automatically closes the GitHub issue using GitHub CLI
-- Adds closure comment linking to the implemented solution
-- Marks issue as resolved with appropriate labels if needed
+- Provides instructions for manually closing the GitHub issue
+- Suggests closure comment text linking to the implemented solution
+- Recommends appropriate labels to mark issue as resolved
 - Provides final status summary and next steps
 
 ## Branch Naming Convention
@@ -163,7 +156,7 @@ The command includes comprehensive error handling:
 
 - **Custom /commit Command** - Uses if available, falls back to git
 - **Project Build Systems** - Auto-detects Maven, Gradle, or npm
-- **GitHub CLI** - Full integration for issues and PRs
+- **GitHub URLs** - Direct web-based issue fetching without CLI dependency
 - **Claude Code** - Interactive AI sessions for planning and implementation
 
 ## Output Format
@@ -185,17 +178,18 @@ Automatically detects repository information:
 
 ## Security Considerations
 
-- Uses GitHub CLI authentication (no hardcoded tokens)
-- Respects repository permissions
-- Only accesses public issue information
+- Uses public GitHub URLs (no authentication required)
+- Respects repository permissions through public access
+- Only accesses publicly available issue information
 - No sensitive data stored or transmitted
 
 ## Troubleshooting
 
 **"Failed to fetch issue"**
 - Check issue number exists
-- Verify repository access permissions
-- Ensure GitHub CLI is authenticated: `gh auth status`
+- Verify repository is publicly accessible
+- Ensure internet connection is working
+- Check if GitHub is accessible from your network
 
 **"Missing required dependencies"**
 - Install missing tools as listed in error message
