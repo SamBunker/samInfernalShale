@@ -24,7 +24,7 @@ public class InventoryTaskList implements TaskListInterface {
             tasks.add(new DropGems(main));
         }
         
-        if (config.getMiningMethod().equals("3T Mining") || config.getMiningMethod().equals("Mining")) {
+        if (config.getMiningMethod().equals("3T Mining")) {
             tasks.add(new TakeCloth(main));
         }
     }

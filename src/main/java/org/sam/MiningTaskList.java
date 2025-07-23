@@ -21,8 +21,6 @@ public class MiningTaskList implements TaskListInterface {
             tasks.add(new ThreeTick(main, config));
         } else if (config.getMiningMethod().equals("AFK Mining")) {
             tasks.add(new AfkMine(main));
-        } else {
-            tasks.add(new Mining(main, config));
         }
         
         tasks.add(new Crush(main));

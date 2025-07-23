@@ -18,7 +18,8 @@ import java.util.regex.Pattern;
                 name = "Mining Method",
                 description = "How would you like to mine shale?",
                 optionType = OptionType.STRING,
-                allowedValues = {"3T Mining", "Mining", "AFK Mining"}
+                allowedValues = {"3T Mining"
+                        , "AFK Mining"}
         ),
         @ScriptConfiguration(
                 name = "SelectedRocks",
@@ -40,7 +41,7 @@ import java.util.regex.Pattern;
 
 @ScriptManifest(
         name = "Sam Infernal Shale",
-        description = "3T, Tick Manipulation, Regular Mining, AFK Mining",
+        description = "3T Tick Manipulation and AFK Mining",
         author = "Sam",
         version = "1.2.2",
         category = ScriptCategory.Mining
@@ -62,7 +63,6 @@ public class samInfernalShale extends AbstractScript {
     public void methodChanged(String method) {
         switch (method) {
             case "3T Mining":
-            case "Mining":
                 updateVisibility("SelectedRocks", true);
                 break;
             case "AFK Mining":
@@ -248,7 +248,7 @@ public class samInfernalShale extends AbstractScript {
     public void poll() {
         taskManager.executeTask();
         
-        if (config.getMiningMethod().equals("3T Mining") || config.getMiningMethod().equals("Mining")) {
+        if (config.getMiningMethod().equals("3T Mining")) {
             if (config.getSelectedRocks() == null) {
                 ScriptManager.INSTANCE.stop();
                 return;
