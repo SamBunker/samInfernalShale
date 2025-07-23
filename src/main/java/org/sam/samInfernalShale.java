@@ -186,8 +186,7 @@ public class samInfernalShale extends AbstractScript {
         int price = priceFetcher.getInfernalShalePrice();
         
         // Send Discord start message
-        String playerName = Players.local().name() != null ? Players.local().name() : "Unknown";
-        discordWebhook.sendStartMessage(playerName, price);
+        discordWebhook.sendStartMessage(price);
 
         PaintBuilder paintBuilder = PaintBuilder.newBuilder()
                 .minHeight(180)
@@ -299,8 +298,7 @@ public class samInfernalShale extends AbstractScript {
                 averageGpPerHour,
                 totalProfit,
                 vars.crushedShaleObtained,
-                totalRuntime,
-                powbotUsername
+                totalRuntime
             );
         }
     }

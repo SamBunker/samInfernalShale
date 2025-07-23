@@ -14,19 +14,17 @@ public class DiscordWebhook {
         this.webhookUrl = webhookUrl;
     }
     
-    public boolean sendStartMessage(String username, int infernalShalePrice) {
+    public boolean sendStartMessage(int infernalShalePrice) {
         if (webhookUrl == null || webhookUrl.trim().isEmpty()) {
             return false; // No webhook configured
         }
         
         try {
             String message = String.format(
-                "🚀 **Script Started** 🚀\n" +
-                "**Player:** %s\n" +
+                "**Script Started**\n" +
                 "**Current Infernal Shale Price:** %s gp\n" +
                 "**Script:** Sam Infernal Shale Mining\n" +
                 "**Time:** <t:%d:f>",
-                username,
                 formatPrice(infernalShalePrice),
                 System.currentTimeMillis() / 1000
             );
@@ -38,7 +36,7 @@ public class DiscordWebhook {
         }
     }
     
-    public boolean sendStopMessage(int averageGpPerHour, int totalProfit, int shaleCollected, long totalTimeMs, String powbotUsername) {
+    public boolean sendStopMessage(int averageGpPerHour, int totalProfit, int shaleCollected, long totalTimeMs) {
         if (webhookUrl == null || webhookUrl.trim().isEmpty()) {
             return false; // No webhook configured
         }
@@ -54,14 +52,12 @@ public class DiscordWebhook {
             
             String message = String.format(
                 "🛑 **Script Stopped** 🛑\n" +
-                "**Player:** %s\n" +
                 "**Average GP/hr:** %s gp\n" +
                 "**Total Profit:** %s gp\n" +
                 "**Shale Collected:** %,d\n" +
                 "**Total Runtime:** %s\n" +
                 "**Script:** Sam Infernal Shale Mining\n" +
                 "**Time:** <t:%d:f>",
-                powbotUsername,
                 formatPrice(averageGpPerHour),
                 formatPrice(totalProfit),
                 shaleCollected,

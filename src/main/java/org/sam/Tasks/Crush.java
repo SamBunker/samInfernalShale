@@ -26,11 +26,11 @@ public class Crush extends Task {
 
     @Override
     public void execute() {
-        Item hammer = Functions.getHammer(main);
+        Item chisel = Inventory.stream().name(Constants.CHISEL).first();
         for (int i = 0; i < Variables.maxCrushAttempts; i++) {
             Item shale = Inventory.stream().id(Constants.INFERNAL_SHALE).last();
             if (shale.inventoryActions().isEmpty()) break;
-            if (hammer.useOn(shale)) {
+            if (chisel.useOn(shale)) {
                 Condition.sleep(Random.nextInt(20, 80));
             }
         }
