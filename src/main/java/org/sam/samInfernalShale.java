@@ -149,16 +149,8 @@ public class samInfernalShale extends AbstractScript {
                 .withTextSize(14F)
                 .addString(() -> "Task: " + taskManager.getCurrentTaskName());
         
-        // Only show Mining stats if not using AFK Mining
+        // Only show Rock Success stats if not using AFK Mining
         if (!config.getMiningMethod().equals("AFK Mining")) {
-            paintBuilder.addString(() -> {
-                if (vars.miningAttempts > 0) {
-                    double successRate = (double) vars.rocksMined / vars.miningAttempts * 100;
-                    return "Mining: " + vars.rocksMined + "/" + vars.miningAttempts + " (" + String.format("%.1f", successRate) + "%)";
-                }
-                return "Mining: " + vars.rocksMined + "/0 (0.0%)";
-            });
-            
             // Enhanced tracking for issue #5: mined / interaction-failed / wiped-missed rocks
             paintBuilder.addString(() -> {
                 int totalAttempts = vars.rocksMined + vars.successfulInteractionsFailed + vars.totalMissedRocks;
