@@ -159,14 +159,14 @@ public class samInfernalShale extends AbstractScript {
                 return "Mining: " + vars.rocksMined + "/0 (0.0%)";
             });
             
-            // Add specific tracking for mined vs wiped-missed rocks as requested in issue #5
+            // Enhanced tracking for issue #5: mined / interaction-failed / wiped-missed rocks
             paintBuilder.addString(() -> {
-                int totalAttempts = vars.rocksMined + vars.totalMissedRocks;
+                int totalAttempts = vars.rocksMined + vars.successfulInteractionsFailed + vars.totalMissedRocks;
                 if (totalAttempts > 0) {
-                    double wipedSuccessRate = (double) vars.rocksMined / totalAttempts * 100;
-                    return "Wiped-missed: " + vars.rocksMined + "/" + vars.totalMissedRocks + " (" + String.format("%.1f", wipedSuccessRate) + "%)";
+                    double successRate = (double) vars.rocksMined / totalAttempts * 100;
+                    return "Rock Success: " + vars.rocksMined + "/" + vars.successfulInteractionsFailed + "/" + vars.totalMissedRocks + " (" + String.format("%.1f", successRate) + "%)";
                 }
-                return "Wiped-missed: 0/0 (0.0%)";
+                return "Rock Success: 0/0/0 (0.0%)";
             });
         }
         

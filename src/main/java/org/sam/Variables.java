@@ -16,6 +16,7 @@ public class Variables {
     public int miningAttempts = 0;
     public int crushedShaleObtained = 0;
     public int initialCrushedShaleCount = 0;
+    public int successfulInteractionsFailed = 0; // Tracks successful rock interactions that failed to mine
 
     // 3T Mining Timing Tracking
     public int recentTimingFailures = 0;

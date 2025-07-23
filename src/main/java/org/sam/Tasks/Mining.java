@@ -50,7 +50,24 @@ public class Mining extends Task {
         if (Functions.getTargetRock(event).interact("Mine")) {
             main.vars.miningAttempts++;
             System.out.println("Mining attempt #" + main.vars.miningAttempts);
+            
+            // Track initial shale count to detect successful mining vs failed interaction
+            long initialShaleCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
+            
             Condition.wait(() -> Players.local().animation() == 12186, 15, 100);
+            
+            // Check if mining actually succeeded by waiting briefly for inventory change
+            boolean miningSucceeded = Condition.wait(() -> {
+                long currentShaleCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
+                return currentShaleCount > initialShaleCount;
+            }, 20, 75); // Wait up to 1.5 seconds for mining success
+            
+            if (!miningSucceeded) {
+                // Successful interaction but failed to mine ore
+                main.vars.successfulInteractionsFailed++;
+                System.out.println("Successful interaction failed to mine ore. Total: " + main.vars.successfulInteractionsFailed);
+            }
+            
             config.removeSelectedRock(0);
             config.addSelectedRock(event);
 
