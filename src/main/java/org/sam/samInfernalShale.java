@@ -158,6 +158,16 @@ public class samInfernalShale extends AbstractScript {
                 }
                 return "Mining: " + vars.rocksMined + "/0 (0.0%)";
             });
+            
+            // Add specific tracking for mined vs wiped-missed rocks as requested in issue #5
+            paintBuilder.addString(() -> {
+                int totalAttempts = vars.rocksMined + vars.totalMissedRocks;
+                if (totalAttempts > 0) {
+                    double wipedSuccessRate = (double) vars.rocksMined / totalAttempts * 100;
+                    return "Wiped-missed: " + vars.rocksMined + "/" + vars.totalMissedRocks + " (" + String.format("%.1f", wipedSuccessRate) + "%)";
+                }
+                return "Wiped-missed: 0/0 (0.0%)";
+            });
         }
         
         // Only show Timing Failures if not using AFK Mining
