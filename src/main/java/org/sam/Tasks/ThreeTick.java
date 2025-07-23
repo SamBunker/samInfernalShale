@@ -177,8 +177,9 @@ public class ThreeTick extends Task {
             Tile nextEventTile = config.getFirstSelectedRock().getTile();
             if (nextEventTile.distanceTo(Players.local().tile()) >= 1.1) {
                 nextEventTile.matrix().interact("Walk here");
-                long initialCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
-
+                
+                // Chisel while walking to optimize tick usage
+                performChiselingWhileWalking();
             }
         }
         Condition.sleep(Random.nextInt(30, 40));
@@ -233,6 +234,62 @@ public class ThreeTick extends Task {
             main.vars.averageClothWipeTime = main.vars.recentClothTimings.stream()
                 .mapToLong(Long::longValue)
                 .sum() / main.vars.recentClothTimings.size();
+        }
+    }
+
+    private void performChiselingWhileWalking() {
+        // Only chisel if we have shale to chisel and the necessary tools
+        long shaleCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
+        if (shaleCount < 2 || !Functions.hasItem(Constants.HAMMER)) {
+            System.out.println("Skipping chiseling while walking - insufficient shale or no hammer");
+            return;
+        }
+
+        System.out.println("Starting chiseling while walking to next rock...");
+        
+        // Perform 1-2 chiseling operations while walking
+        int chiselingOperations = (shaleCount >= 4) ? 2 : 1;
+        
+        for (int i = 0; i < chiselingOperations; i++) {
+            performSingleChiselingOperation(i + 1, chiselingOperations);
+            
+            // Small delay between operations if doing multiple
+            if (i < chiselingOperations - 1) {
+                Condition.sleep(Random.nextInt(15, 25));
+            }
+        }
+        
+        System.out.println("Completed " + chiselingOperations + " chiseling operations while walking");
+    }
+
+    private void performSingleChiselingOperation(int operationNumber, int totalOperations) {
+        Item shale = Inventory.stream().id(Constants.INFERNAL_SHALE).last();
+        if (shale == null || !shale.valid()) {
+            System.out.println("No valid shale found for chiseling operation " + operationNumber);
+            return;
+        }
+
+        long startTime = System.currentTimeMillis();
+        long initialShaleCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
+        
+        System.out.println("Chiseling operation " + operationNumber + "/" + totalOperations + " starting while walking...");
+        
+        if (Functions.getHammer().useOn(shale)) {
+            // Wait for chiseling success with a reasonable timeout
+            boolean success = Condition.wait(() -> {
+                long currentCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
+                return currentCount < initialShaleCount; // Check if shale was reduced
+            }, 10, 15); // 150ms timeout (15 iterations * 10ms)
+            
+            long chiselingTime = System.currentTimeMillis() - startTime;
+            
+            if (success) {
+                System.out.println("Chiseling operation " + operationNumber + " successful in " + chiselingTime + "ms while walking");
+            } else {
+                System.out.println("Chiseling operation " + operationNumber + " failed/timeout after " + chiselingTime + "ms while walking");
+            }
+        } else {
+            System.out.println("Failed to use hammer on shale for operation " + operationNumber + " while walking");
         }
     }
 
