@@ -24,13 +24,6 @@ public class Variables {
     public List<Long> recentClothTimings = new ArrayList<>(); // Track last 10 timings
     public int currentPingCompensation = 0;
 
-    // 3T Chiseling Timing Tracking
-    public int recentChiselingFailures = 0;
-    public long averageChiselingTime = 45; // Adaptive chiseling timing based on success
-    public long lastSuccessfulChiselingDelay = 45;
-    public List<Long> recentChiselingTimings = new ArrayList<>(); // Track last 10 chiseling timings
-    public int chiselingAttempts = 0;
-    public int chiselingSuccesses = 0;
 
     // 3T Mining Initialization State Tracking
     public boolean threeTMiningInitialized = false; // Track if 3T mining session is properly initialized

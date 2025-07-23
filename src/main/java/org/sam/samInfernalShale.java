@@ -165,16 +165,6 @@ public class samInfernalShale extends AbstractScript {
             paintBuilder.addString(() -> "Timing Failures: " + vars.consecutiveFailures);
         }
         
-        // Only show Chiseling stats for 3T Mining
-        if (config.getMiningMethod().equals("3T Mining")) {
-            paintBuilder.addString(() -> {
-                if (vars.chiselingAttempts > 0) {
-                    double chiselingSuccessRate = (double) vars.chiselingSuccesses / vars.chiselingAttempts * 100;
-                    return "Chiseling: " + vars.chiselingSuccesses + "/" + vars.chiselingAttempts + " (" + String.format("%.1f", chiselingSuccessRate) + "%)";
-                }
-                return "Chiseling: 0/0 (0.0%)";
-            });
-        }
         
         paintBuilder.addString(() -> {
             int totalProfit = vars.crushedShaleObtained * price;
