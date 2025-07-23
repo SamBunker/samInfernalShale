@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
                 description = "How would you like to mine shale?",
                 optionType = OptionType.STRING,
                 allowedValues = {"3T Mining"
+
                         , "AFK Mining"}
         ),
         @ScriptConfiguration(
@@ -150,17 +151,24 @@ public class samInfernalShale extends AbstractScript {
 
     @Override
     public void onStart() {
-        config = new MiningConfig(
-                getOption("SelectedRocks"),
-                getOption("Mining Method"),
-                getOption("Hammer Type"),
-                getOption("Discord Webhook URL")
-        );
-        
-        // Initialize Discord webhook
-        discordWebhook = new DiscordWebhook(config.getDiscordWebhookUrl());
+        try {
+            config = new MiningConfig(
+                    getOption("SelectedRocks"),
+                    getOption("Mining Method"),
+                    getOption("Hammer Type"),
+                    getOption("Discord Webhook URL")
+            );
+            
+            // Initialize Discord webhook
+            discordWebhook = new DiscordWebhook(config.getDiscordWebhookUrl());
 
-        taskManager = new TaskManager(this, config);
+            taskManager = new TaskManager(this, config);
+            System.out.println("Script initialized successfully");
+        } catch (Exception e) {
+            System.out.println("Error during script initialization: " + e.getMessage());
+            e.printStackTrace();
+            return;
+        }
         
         // Initialize script start time for profit per hour calculation
         vars.scriptStartTime = System.currentTimeMillis();
@@ -246,6 +254,16 @@ public class samInfernalShale extends AbstractScript {
 
     @Override
     public void poll() {
+        if (taskManager == null) {
+            System.out.println("TaskManager is null, script may not have initialized properly");
+            return;
+        }
+        
+        if (config == null) {
+            System.out.println("Config is null, script may not have initialized properly");
+            return;
+        }
+        
         taskManager.executeTask();
         
         if (config.getMiningMethod().equals("3T Mining")) {
