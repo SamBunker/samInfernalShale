@@ -40,7 +40,25 @@ public class AfkMine extends Task {
         }
 
         if (activeShale.interact("Mine")) {
+            main.vars.miningAttempts++;
+            System.out.println("Mining attempt #" + main.vars.miningAttempts);
+            
+            // Track initial shale count to detect successful mining vs failed interaction
+            long initialShaleCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
+            
             Condition.wait(() -> Players.local().animation() == 7139, 80, 100);
+            
+            // Check if mining actually succeeded by waiting briefly for inventory change
+            boolean miningSucceeded = Condition.wait(() -> {
+                long currentShaleCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
+                return currentShaleCount > initialShaleCount;
+            }, 20, 100); // Wait up to 2 seconds for AFK mining success (slower than 3T)
+            
+            if (!miningSucceeded) {
+                // Successful interaction but failed to mine ore
+                main.vars.successfulInteractionsFailed++;
+                System.out.println("Successful interaction failed to mine ore. Total: " + main.vars.successfulInteractionsFailed);
+            }
         }
     }
 }

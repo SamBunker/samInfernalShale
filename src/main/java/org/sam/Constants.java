@@ -2,8 +2,6 @@ package org.sam;
 import org.powbot.api.Area;
 import org.powbot.api.Tile;
 
-import java.util.ArrayList;
-
 public class Constants {
 
     public Constants() {
@@ -24,9 +22,23 @@ public class Constants {
     public static final Integer INFERNAL_SHALE_DEPOSIT_ID = 56362;
     public static final Integer INFERNAL_SHALE_DEPOSIT_DEPLEATED_ID = 56363;
     public static final Integer INFERNAL_SHALE = 30846;
+    public static final Integer CRUSHED_INFERNAL_SHALE = 30848;
     public static final Integer GEM_BAG_ID = 12020;
     public static final Integer WET_CLOTH_ID = 30808;
 
-    //ArrayLists
-    public final ArrayList<Task> TASK_LIST = new ArrayList<Task>();
+    // 3T Mining Timing Constants
+    public static final int WET_CLOTH_MIN_WAIT = 180; // Minimum wait after wiping
+    public static final int WET_CLOTH_MAX_WAIT = 320; // Maximum wait after wiping  
+    public static final int WET_CLOTH_BASE_DELAY = 230; // Base delay (current: 280ms fixed)
+    public static final int TIMING_ADJUSTMENT_THRESHOLD = 2; // Failures before adjustment
+    public static final int PING_COMPENSATION_MULTIPLIER = 15; // Ping * this value added to delays
+
+    // 3T Chiseling Timing Constants
+    public static final int CHISEL_MIN_WAIT = 35; // Minimum wait after chiseling
+    public static final int CHISEL_MAX_WAIT = 80; // Maximum wait after chiseling  
+    public static final int CHISEL_BASE_DELAY = 45; // Base delay for chiseling operations
+    public static final int CHISEL_SUCCESS_TIMEOUT = 90; // Timeout for chiseling success detection
+    public static final int CHISEL_PRE_DELAY_MIN = 25; // Minimum pre-chiseling delay
+    public static final int CHISEL_PRE_DELAY_MAX = 45; // Maximum pre-chiseling delay
+
 }
