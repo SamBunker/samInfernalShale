@@ -19,11 +19,13 @@ This command processes a GitHub issue through the complete development workflow:
 5. **🧪 Testing Phase** - Runs automated and guides manual testing
 6. **💾 Commit Changes** - Uses custom /commit command or standard git
 7. **📤 Create Pull Request** - Automated PR creation with issue linking
+8. **✅ Close Issue** - Automatically closes the GitHub issue after successful implementation
 
 ## Options
 
 - `--branch <name>` - Use custom branch name (default: auto-generated from issue)
 - `--no-test` - Skip the testing phase entirely
+- `--no-close` - Skip automatic issue closing (leave issue open)
 - `--base <branch>` - Base branch for PR (default: main)
 - `--help, -h` - Show detailed help information
 
@@ -38,6 +40,9 @@ This command processes a GitHub issue through the complete development workflow:
 
 # Skip tests and use develop as base branch
 /issue 23 --no-test --base develop
+
+# Process issue but leave it open for manual review
+/issue 56 --no-close
 
 # Get help
 /issue --help
@@ -123,6 +128,12 @@ Provides detailed implementation guidance including:
   - Testing checklist
   - Review notes section
   - Automatic issue closing reference
+
+### Step 8: Issue Closure
+- Automatically closes the GitHub issue using GitHub CLI
+- Adds closure comment linking to the implemented solution
+- Marks issue as resolved with appropriate labels if needed
+- Provides final status summary and next steps
 
 ## Branch Naming Convention
 
