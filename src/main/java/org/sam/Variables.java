@@ -17,6 +17,9 @@ public class Variables {
     public int crushedShaleObtained = 0;
     public int initialCrushedShaleCount = 0;
     public int successfulInteractionsFailed = 0; // Tracks successful rock interactions that failed to mine
+    public long scriptStartTime = 0; // Track when script started for profit per hour calculation
+    public List<Long> recentProfitTimestamps = new ArrayList<>(); // Track timestamps for profit calculation
+    public List<Integer> recentProfitAmounts = new ArrayList<>(); // Track profit amounts for averaging
 
     // 3T Mining Timing Tracking
     public int recentTimingFailures = 0;

@@ -73,6 +73,20 @@ public class samInfernalShale extends AbstractScript {
         if (event.getItemId() == Constants.CRUSHED_INFERNAL_SHALE) {
             if (event.getQuantityChange() > 0) {
                 vars.crushedShaleObtained += event.getQuantityChange();
+                
+                // Track profit data for averaging
+                long currentTime = System.currentTimeMillis();
+                int profitGained = event.getQuantityChange() * priceFetcher.getInfernalShalePrice();
+                
+                vars.recentProfitTimestamps.add(currentTime);
+                vars.recentProfitAmounts.add(profitGained);
+                
+                // Keep only last 20 profit events for rolling average (about 10-15 minutes of data)
+                if (vars.recentProfitTimestamps.size() > 20) {
+                    vars.recentProfitTimestamps.remove(0);
+                    vars.recentProfitAmounts.remove(0);
+                }
+                
                 System.out.println("Crushed shale obtained! Total: " + vars.crushedShaleObtained + ", Amount gained: " + event.getQuantityChange());
             } else if (event.getQuantityChange() < 0) {
                 // Track when crushed shale is dropped/deposited (negative change)
@@ -130,6 +144,9 @@ public class samInfernalShale extends AbstractScript {
 
         taskManager = new TaskManager(this, config);
         
+        // Initialize script start time for profit per hour calculation
+        vars.scriptStartTime = System.currentTimeMillis();
+        
         // Reset 3T mining initialization state on script start
         resetThreeTMiningState();
         
@@ -170,7 +187,32 @@ public class samInfernalShale extends AbstractScript {
         
         paintBuilder.addString(() -> {
             int totalProfit = vars.crushedShaleObtained * price;
-            return "GE Profit: " + priceFetcher.formatPrice(totalProfit) + " gp (" + price + " ea)";
+            
+            // Calculate averaged profit per hour from recent profit events
+            if (vars.recentProfitTimestamps.size() >= 2) {
+                long oldestTime = vars.recentProfitTimestamps.get(0);
+                long newestTime = vars.recentProfitTimestamps.get(vars.recentProfitTimestamps.size() - 1);
+                long timeSpanMs = newestTime - oldestTime;
+                
+                if (timeSpanMs > 0) {
+                    int totalRecentProfit = vars.recentProfitAmounts.stream().mapToInt(Integer::intValue).sum();
+                    double timeSpanHours = timeSpanMs / (1000.0 * 60.0 * 60.0);
+                    int averageProfitPerHour = (int) Math.round(totalRecentProfit / timeSpanHours);
+                    
+                    return "GE Profit: " + priceFetcher.formatPrice(totalProfit) + " gp (" + priceFetcher.formatPrice(averageProfitPerHour) + "/hr avg)";
+                }
+            }
+            
+            // Fallback to simple calculation if not enough data
+            long runtimeMs = System.currentTimeMillis() - vars.scriptStartTime;
+            double runtimeHours = runtimeMs / (1000.0 * 60.0 * 60.0);
+            
+            if (runtimeHours > 0.05) { // At least 3 minutes of runtime
+                int profitPerHour = (int) Math.round(totalProfit / runtimeHours);
+                return "GE Profit: " + priceFetcher.formatPrice(totalProfit) + " gp (" + priceFetcher.formatPrice(profitPerHour) + "/hr)";
+            }
+            
+            return "GE Profit: " + priceFetcher.formatPrice(totalProfit) + " gp (calculating/hr)";
         })
                 .trackSkill(Skill.Mining);
         
