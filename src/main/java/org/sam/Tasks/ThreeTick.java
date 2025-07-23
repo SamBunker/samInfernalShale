@@ -176,11 +176,11 @@ public class ThreeTick extends Task {
             
             Condition.wait(() -> Players.local().animation() == 12186, 15, 100); //What animation is this?
             
-            // Check if mining actually succeeded by waiting briefly for inventory change
+            // Check if mining actually succeeded with minimal wait time
             boolean miningSucceeded = Condition.wait(() -> {
                 long currentShaleCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
                 return currentShaleCount > initialShaleCount;
-            }, 20, 75); // Wait up to 1.5 seconds for mining success
+            }, 20, 15); // Wait only 300ms for mining success (reduced from 1.5s)
             
             if (!miningSucceeded) {
                 // Successful interaction but failed to mine ore
