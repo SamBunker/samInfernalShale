@@ -26,7 +26,7 @@ public class ThreeTick extends Task {
         return Constants.INFERNAL_SHALE_AREA.contains(Players.local())
                 && !Inventory.isFull()
                 && Functions.hasItem(" pickaxe")
-                && Functions.hasItem(Constants.HAMMER)
+                && Functions.hasHammer(main)
                 && Functions.hasItem(Constants.WET_CLOTH);
     }
 
@@ -245,7 +245,7 @@ public class ThreeTick extends Task {
     private void performChiselingWhileWalking() {
         // Only chisel if we have shale to chisel and the necessary tools
         long shaleCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
-        if (shaleCount < 2 || !Functions.hasItem(Constants.HAMMER)) {
+        if (shaleCount < 2 || !Functions.hasHammer(main)) {
             System.out.println("Skipping chiseling while walking - insufficient shale or no hammer");
             return;
         }
@@ -279,7 +279,7 @@ public class ThreeTick extends Task {
         
         System.out.println("Chiseling operation " + operationNumber + "/" + totalOperations + " starting while walking...");
         
-        if (Functions.getHammer().useOn(shale)) {
+        if (Functions.getHammer(main).useOn(shale)) {
             // Wait for chiseling success with a reasonable timeout
             boolean success = Condition.wait(() -> {
                 long currentCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();

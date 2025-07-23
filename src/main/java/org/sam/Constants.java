@@ -13,6 +13,7 @@ public class Constants {
     public static final String WET_CLOTH = "Jim's wet cloth";
     public static final String HAMMER = "Hammer";
     public static final String CHISEL = "Chisel";
+    public static final String IMCANDO_HAMMER = "Imcando hammer (off-hand)";
 
     //AREAS
     public static Area INFERNAL_SHALE_AREA = new Area(new Tile(1463,10105,0), new Tile(1475,10085,0));
@@ -25,6 +26,7 @@ public class Constants {
     public static final Integer CRUSHED_INFERNAL_SHALE = 30848;
     public static final Integer GEM_BAG_ID = 12020;
     public static final Integer WET_CLOTH_ID = 30808;
+    public static final Integer IMCANDO_HAMMER_ID = 29775;
 
     // 3T Mining Timing Constants
     public static final int WET_CLOTH_MIN_WAIT = 180; // Minimum wait after wiping

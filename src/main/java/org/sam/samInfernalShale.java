@@ -23,6 +23,12 @@ import java.util.regex.Pattern;
                 name = "SelectedRocks",
                 description = "Select the rocks you'd like to interact with",
                 optionType = OptionType.GAMEOBJECT_ACTIONS
+        ),
+        @ScriptConfiguration(
+                name = "Hammer Type",
+                description = "Select your preferred hammer type",
+                optionType = OptionType.STRING,
+                allowedValues = {"Regular Hammer", "Imcando Hammer (off-hand)"}
         )
 })
 
@@ -139,7 +145,8 @@ public class samInfernalShale extends AbstractScript {
     public void onStart() {
         config = new MiningConfig(
                 getOption("SelectedRocks"),
-                getOption("Mining Method")
+                getOption("Mining Method"),
+                getOption("Hammer Type")
         );
 
         taskManager = new TaskManager(this, config);
