@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
         name = "Sam Infernal Shale",
         description = "3T, Tick Manipulation, Regular Mining, AFK Mining",
         author = "Sam",
-        version = "1.2.1",
+        version = "1.2.2",
         category = ScriptCategory.Mining
 )
 public class samInfernalShale extends AbstractScript {
@@ -170,19 +170,21 @@ public class samInfernalShale extends AbstractScript {
         if (!config.getMiningMethod().equals("AFK Mining")) {
             // Enhanced tracking for issue #5: mined / interaction-failed / wiped-missed rocks
             paintBuilder.addString(() -> {
-                int totalAttempts = vars.rocksMined + vars.successfulInteractionsFailed + vars.totalMissedRocks;
+                // Calculate successful interactions that failed to mine ore
+                int successfulInteractionsFailed = Math.max(0, vars.miningAttempts - vars.rocksMined - vars.totalMissedRocks);
+                int totalAttempts = vars.rocksMined + successfulInteractionsFailed + vars.totalMissedRocks;
                 if (totalAttempts > 0) {
                     double successRate = (double) vars.rocksMined / totalAttempts * 100;
-                    return "Rock Success: " + vars.rocksMined + "/" + vars.successfulInteractionsFailed + "/" + vars.totalMissedRocks + " (" + String.format("%.1f", successRate) + "%)";
+                    return "Rock Success: " + vars.rocksMined + "/" + successfulInteractionsFailed + "/" + vars.totalMissedRocks + " (" + String.format("%.1f", successRate) + "%)";
                 }
                 return "Rock Success: 0/0/0 (0.0%)";
             });
         }
         
         // Only show Timing Failures if not using AFK Mining
-        if (!config.getMiningMethod().equals("AFK Mining")) {
-            paintBuilder.addString(() -> "Timing Failures: " + vars.consecutiveFailures);
-        }
+//        if (!config.getMiningMethod().equals("AFK Mining")) {
+//            paintBuilder.addString(() -> "Timing Failures: " + vars.consecutiveFailures);
+//        }
         
         
         paintBuilder.addString(() -> {
