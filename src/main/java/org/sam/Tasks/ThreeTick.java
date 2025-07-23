@@ -84,26 +84,9 @@ public class ThreeTick extends Task {
 
                 if (initialCount >= 2 && nextEventTile.matrix().distanceTo(Players.local().tile()) < 2.1) {
                     Item shale = Inventory.stream().id(Constants.INFERNAL_SHALE).last();
-
-                    if (initialCount >= Random.nextInt(6, 8)) {
-                        Condition.sleep(Random.nextInt(6, 9));
-                        for (int i = 0; i < 2; i++) {
-                            if (Functions.getHammer().useOn(shale)) {
-                                Condition.wait(() ->
-                                                Inventory.stream().id(Constants.INFERNAL_SHALE).count() <= initialCount - 1,
-                                        80, 10
-                                );
-                            }
-                        }
-                    } else {
-                        Condition.sleep(Random.nextInt(8, 21));
-                        if (Functions.getHammer().useOn(shale)) {
-                            Condition.wait(() ->
-                                            Inventory.stream().id(Constants.INFERNAL_SHALE).count() <= initialCount - 1,
-                                    2, 5
-                            );
-                        }
-                    }
+                    
+                    // Adaptive chiseling system - replaces fixed random timing
+                    performAdaptiveChiseling(shale, initialCount);
                 }
             }
         }
@@ -160,5 +143,143 @@ public class ThreeTick extends Task {
                 .mapToLong(Long::longValue)
                 .sum() / main.vars.recentClothTimings.size();
         }
+    }
+
+    private void performAdaptiveChiseling(Item shale, long initialCount) {
+        // Determine number of chiseling operations based on inventory count
+        int chiselingOperations = (initialCount >= Random.nextInt(6, 8)) ? 2 : 1;
+        
+        System.out.println("Starting adaptive chiseling: " + chiselingOperations + " operations");
+        
+        // Pre-chiseling delay with adaptive timing
+        int preChiselingDelay = calculateOptimalPreChiselingDelay();
+        Condition.sleep(preChiselingDelay);
+        
+        // Perform chiseling operations
+        for (int i = 0; i < chiselingOperations; i++) {
+            performSingleChiselingOperation(shale, initialCount, i + 1, chiselingOperations);
+        }
+    }
+
+    private void performSingleChiselingOperation(Item shale, long initialCount, int operationNumber, int totalOperations) {
+        long startTime = System.currentTimeMillis();
+        main.vars.chiselingAttempts++;
+        
+        System.out.println("Chiseling operation " + operationNumber + "/" + totalOperations + " starting...");
+        
+        if (Functions.getHammer().useOn(shale)) {
+            // Adaptive success detection with consistent timeout
+            long adaptiveTimeout = calculateAdaptiveChiselingTimeout();
+            
+            boolean success = Condition.wait(() -> {
+                long currentCount = Inventory.stream().id(Constants.INFERNAL_SHALE).count();
+                return currentCount <= initialCount - operationNumber; // Track progressive reduction
+            }, 10, (int)(adaptiveTimeout / 10));
+            
+            long chiselingTime = System.currentTimeMillis() - startTime;
+            
+            if (success) {
+                main.vars.chiselingSuccesses++;
+                trackSuccessfulChiseling(chiselingTime);
+                System.out.println("Chiseling operation " + operationNumber + " successful in " + chiselingTime + "ms");
+            } else {
+                main.vars.recentChiselingFailures++;
+                adjustChiselingTimingAfterFailure();
+                System.out.println("Chiseling operation " + operationNumber + " failed/timeout after " + chiselingTime + "ms");
+            }
+            
+            // Inter-operation delay for multiple chiseling operations
+            if (operationNumber < totalOperations) {
+                int interOperationDelay = calculateInterOperationDelay();
+                Condition.sleep(interOperationDelay);
+            }
+        } else {
+            System.out.println("Failed to use hammer on shale for operation " + operationNumber);
+            main.vars.recentChiselingFailures++;
+        }
+    }
+
+    private int calculateOptimalPreChiselingDelay() {
+        // Base delay with adaptive adjustment
+        int baseDelay = Constants.CHISEL_BASE_DELAY;
+        
+        // Adjust based on recent chiseling failures
+        if (main.vars.recentChiselingFailures > 0) {
+            baseDelay += (main.vars.recentChiselingFailures * 8); // Add 8ms per recent failure
+        }
+        
+        // Adjust based on successful timing history
+        if (main.vars.averageChiselingTime > 0) {
+            baseDelay = (int)((baseDelay + main.vars.averageChiselingTime) / 2);
+        }
+        
+        // Apply ping compensation (shared with cloth timing)
+        baseDelay += main.vars.currentPingCompensation;
+        
+        // Keep within bounds and add small randomization
+        baseDelay = Math.max(Constants.CHISEL_PRE_DELAY_MIN, 
+                    Math.min(Constants.CHISEL_PRE_DELAY_MAX, baseDelay));
+        
+        return baseDelay + Random.nextInt(-5, 5); // ±5ms randomization
+    }
+
+    private long calculateAdaptiveChiselingTimeout() {
+        // Start with base timeout
+        long timeout = Constants.CHISEL_SUCCESS_TIMEOUT;
+        
+        // Increase timeout if experiencing failures
+        if (main.vars.recentChiselingFailures > 0) {
+            timeout += (main.vars.recentChiselingFailures * 15); // Add 15ms per failure
+        }
+        
+        // Adjust based on network conditions (shared ping compensation)
+        timeout += main.vars.currentPingCompensation;
+        
+        // Ensure reasonable bounds
+        return Math.max(Constants.CHISEL_MIN_WAIT, 
+               Math.min(Constants.CHISEL_MAX_WAIT + 40, timeout)); // Max timeout slightly higher
+    }
+
+    private int calculateInterOperationDelay() {
+        // Minimal delay between chiseling operations
+        int baseDelay = 15; // Shorter than pre-chiseling delay
+        
+        // Slight adjustment based on recent performance
+        if (main.vars.recentChiselingFailures > 0) {
+            baseDelay += (main.vars.recentChiselingFailures * 3);
+        }
+        
+        return baseDelay + Random.nextInt(-3, 3); // ±3ms randomization
+    }
+
+    private void trackSuccessfulChiseling(long chiselingTime) {
+        // Track successful chiseling for adaptive learning
+        main.vars.recentChiselingTimings.add(chiselingTime);
+        
+        // Keep only last 10 timings
+        if (main.vars.recentChiselingTimings.size() > 10) {
+            main.vars.recentChiselingTimings.remove(0);
+        }
+        
+        // Update average chiseling time
+        if (!main.vars.recentChiselingTimings.isEmpty()) {
+            main.vars.averageChiselingTime = main.vars.recentChiselingTimings.stream()
+                .mapToLong(Long::longValue)
+                .sum() / main.vars.recentChiselingTimings.size();
+        }
+        
+        // Reduce failure count on success (gradual recovery)
+        main.vars.recentChiselingFailures = Math.max(0, main.vars.recentChiselingFailures - 1);
+        main.vars.lastSuccessfulChiselingDelay = chiselingTime;
+    }
+
+    private void adjustChiselingTimingAfterFailure() {
+        // Increase timing slightly for next attempt (similar to cloth timing adjustment)
+        main.vars.averageChiselingTime += 10; // Add 10ms to base timing
+        
+        // Ensure we don't exceed maximum
+        main.vars.averageChiselingTime = Math.min(main.vars.averageChiselingTime, Constants.CHISEL_MAX_WAIT);
+        
+        System.out.println("Chiseling timing adjusted due to failure. New average: " + main.vars.averageChiselingTime + "ms");
     }
 }

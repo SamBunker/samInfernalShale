@@ -33,4 +33,12 @@ public class Constants {
     public static final int TIMING_ADJUSTMENT_THRESHOLD = 2; // Failures before adjustment
     public static final int PING_COMPENSATION_MULTIPLIER = 15; // Ping * this value added to delays
 
+    // 3T Chiseling Timing Constants
+    public static final int CHISEL_MIN_WAIT = 35; // Minimum wait after chiseling
+    public static final int CHISEL_MAX_WAIT = 80; // Maximum wait after chiseling  
+    public static final int CHISEL_BASE_DELAY = 45; // Base delay for chiseling operations
+    public static final int CHISEL_SUCCESS_TIMEOUT = 90; // Timeout for chiseling success detection
+    public static final int CHISEL_PRE_DELAY_MIN = 25; // Minimum pre-chiseling delay
+    public static final int CHISEL_PRE_DELAY_MAX = 45; // Maximum pre-chiseling delay
+
 }
