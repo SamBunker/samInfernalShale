@@ -14,6 +14,13 @@ public class Functions {
                 Equipment.stream().nameContains(name).isNotEmpty();
     }
 
+    public static boolean hasHammer(samInfernalShale main) {
+        if (main.config != null && "Imcando Hammer (off-hand)".equals(main.config.getHammerType())) {
+            return hasItem(Constants.IMCANDO_HAMMER);
+        }
+        return hasItem(Constants.HAMMER);
+    }
+
     public static Item getGemBag() {
         return Inventory.stream().id(Constants.GEM_BAG_ID).first();
     }
@@ -23,6 +30,13 @@ public class Functions {
     }
 
     public static Item getHammer() {
+        return Inventory.stream().name(Constants.HAMMER).first();
+    }
+
+    public static Item getHammer(samInfernalShale main) {
+        if (main.config != null && "Imcando Hammer (off-hand)".equals(main.config.getHammerType())) {
+            return Inventory.stream().name(Constants.IMCANDO_HAMMER).first();
+        }
         return Inventory.stream().name(Constants.HAMMER).first();
     }
 

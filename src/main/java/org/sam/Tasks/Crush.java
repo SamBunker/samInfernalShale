@@ -18,12 +18,15 @@ public class Crush extends Task {
 
     @Override
     public boolean activate() {
+        if (main.config != null && "Imcando Hammer (off-hand)".equals(main.config.getHammerType())) {
+            return Inventory.isFull() && Functions.hasHammer(main);
+        }
         return Inventory.isFull() && Functions.hasItem(Constants.HAMMER) && Functions.hasItem(Constants.CHISEL);
     }
 
     @Override
     public void execute() {
-        Item hammer = Inventory.stream().name(Constants.HAMMER).first();
+        Item hammer = Functions.getHammer(main);
         for (int i = 0; i < Variables.maxCrushAttempts; i++) {
             Item shale = Inventory.stream().id(Constants.INFERNAL_SHALE).last();
             if (shale.inventoryActions().isEmpty()) break;

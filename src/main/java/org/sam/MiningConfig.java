@@ -7,10 +7,12 @@ import java.util.List;
 public class MiningConfig {
     private final List<GameObjectActionEvent> selectedRocks;
     private String miningMethod;
+    private String hammerType;
 
-    public MiningConfig(List selectedRocks, String miningMethod) {
+    public MiningConfig(List selectedRocks, String miningMethod, String hammerType) {
         this.selectedRocks = selectedRocks;
         this.miningMethod = miningMethod;
+        this.hammerType = hammerType;
     }
 
     public List<GameObjectActionEvent> getSelectedRocks() {
@@ -19,6 +21,10 @@ public class MiningConfig {
 
     public String getMiningMethod() {
         return miningMethod;
+    }
+
+    public String getHammerType() {
+        return hammerType;
     }
 
     public GameObjectActionEvent getFirstSelectedRock() {
