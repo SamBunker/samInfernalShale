@@ -6,7 +6,7 @@
 ![Java](https://img.shields.io/badge/Java-PowBot_SDK-orange?style=for-the-badge)
 ![Completion](https://img.shields.io/badge/90%25-Complete-32a852?style=for-the-badge&logoColor=white)
 
-> 🚀 **Advanced RuneScape automation script for Infernal Shale mining built on the PowerBot SDK**
+> 🚀 **Advanced RuneScape automation script for Infernal Shale mining built on the Powbot SDK**
 
 ---
 
@@ -59,7 +59,7 @@ Choose your preferred mining approach:
 ## 🚀 Installation & Setup
 
 ### Prerequisites
-- **PowerBot Client** with valid subscription
+- **Powbot Client** with valid subscription
 - **Java Development Kit** (JDK 8 or higher)
 - **Gradle** for building the project
 
@@ -143,7 +143,7 @@ The script tracks and displays comprehensive performance data:
 - **💰 Real-time Profit**: Current session profit with GE price integration
 - **⏱️ Profit/Hour**: Averaged calculation based on recent performance
 - **🎯 Timing Statistics**: Success/failure rates for 3T mining precision
-- **📈 Mining XP Tracking**: Integrated with PowerBot's skill tracking
+- **📈 Mining XP Tracking**: Integrated with Powbot's skill tracking
 
 ---
 
@@ -167,7 +167,7 @@ This project is open-source and available under the MIT License.
 
 ## 🙏 Acknowledgments
 
-- **PowerBot SDK** - Providing the automation framework
+- **Powbot SDK** - Providing the automation framework
 - **RuneScape Wiki API** - Real-time pricing data
 - **Community Contributors** - Collaborative improvements and feedback
 
