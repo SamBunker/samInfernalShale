@@ -3,7 +3,7 @@
 ![Sam Infernal Shale](https://img.shields.io/badge/sam-Infernal_Shale-db0917?style=for-the-badge&logoColor=white)
 ![Oldschool Runescape](https://img.shields.io/badge/Oldschool-Runescape-6e58ed?style=for-the-badge&logoColor=white)
 ![Version](https://img.shields.io/badge/version-1.2.3-blue?style=for-the-badge)
-![Java](https://img.shields.io/badge/Java-PowerBot_SDK-orange?style=for-the-badge)
+![Java](https://img.shields.io/badge/Java-PowBot_SDK-orange?style=for-the-badge)
 ![Completion](https://img.shields.io/badge/90%25-Complete-32a852?style=for-the-badge&logoColor=white)
 
 > 🚀 **Advanced RuneScape automation script for Infernal Shale mining built on the PowerBot SDK**
