@@ -130,6 +130,10 @@ Provides detailed implementation guidance including:
 - Recommends appropriate labels to mark issue as resolved
 - Provides final status summary and next steps
 
+### Step 9: Update Project Readme.MD file
+- Update the project readme.md file, especially if the version changes.
+- Document any changes and update the changelog
+
 ## Branch Naming Convention
 
 Auto-generated branch names follow the pattern:
